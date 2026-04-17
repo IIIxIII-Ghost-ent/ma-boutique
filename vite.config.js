@@ -6,10 +6,20 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          supabase: ['@supabase/supabase-js'],
+        // Correction : Utilisation d'une fonction au lieu d'un objet
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor';
+            }
+            if (id.includes('react-router-dom')) {
+              return 'router';
+            }
+            if (id.includes('@supabase/supabase-js')) {
+              return 'supabase';
+            }
+            return 'others'; // Regroupe le reste des dépendances
+          }
         },
       },
     },
