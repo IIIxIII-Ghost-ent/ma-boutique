@@ -23,7 +23,7 @@ export default function Panier() {
   }
 
   const passerCommande = async () => {
-    if (!nom || !telephone) { alert('Merci de renseigner votre nom et téléphone'); return }
+    if (!nom) { alert('Merci de renseigner votre nom et téléphone'); return }
     if (panier.length === 0) return
     setLoading(true)
     const { error } = await supabase.from('commandes').insert({
@@ -145,7 +145,6 @@ export default function Panier() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {[
                   { label: 'Nom complet *', value: nom, setter: setNom, type: 'text', placeholder: 'Ahmed Benali' },
-                  { label: 'Téléphone *', value: telephone, setter: setTelephone, type: 'tel', placeholder: '+212 6XX XXX XXX' },
                   { label: 'Adresse de livraison', value: adresse, setter: setAdresse, type: 'text', placeholder: 'Rue, Ville, Code postal' },
                 ].map(f => (
                   <div key={f.label}>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import ProduitCard from '../components/ProduitCard'
 
-/* ── Helper : parse images_url (JSON string ou tableau) ── */
+/* ── Helper : parse images_url ── */
 function parseImages(p) {
   if (!p) return []
   if (p.images_url) {
@@ -14,7 +14,7 @@ function parseImages(p) {
   return p.image_url ? [p.image_url] : []
 }
 
-/* ── Icônes SVG inline (pas de lucide-react) ── */
+/* ── Icônes SVG ── */
 const Icon = {
   Star:    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
   Zap:     <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
@@ -45,7 +45,13 @@ export default function Catalogue() {
 
   const produitsFiltres = filtre === 'Tout' ? produits : produits.filter(p => p.categorie === filtre)
 
-  /* ── BUG CORRIGÉ : vedettes filtrées par p.vedette === true ── */
+  const voirTout = () => {
+    setFiltre('Tout')
+    setTimeout(() => {
+      document.getElementById('catalogue-complet')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 50)
+  }
+
   const vedettes   = produits.filter(p => p.vedette === true && p.stock > 0)
   const nouveautes = [...produits].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 4)
 
@@ -59,19 +65,42 @@ export default function Catalogue() {
   )
 
   return (
-    <div style={{ minHeight:'100vh', background:'var(--background)', position:'relative' }}>
+    <div style={{ minHeight:'100vh', background:'var(--background)', position:'relative', overflowX:'hidden' }}>
 
-      {/* ── Filigrane cercles concentriques ── */}
-      <div style={{ position:'fixed', top:'50%', right:'-8%', transform:'translateY(-50%)', zIndex:0, pointerEvents:'none', opacity:0.032 }}>
-        {[600,480,360,240,120].map((s,i) => (
-          <div key={i} style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:s, height:s, borderRadius:'50%', border:'1px solid #1a1a1a' }}/>
-        ))}
-      </div>
-      <div style={{ position:'fixed', bottom:'-10%', left:'-6%', zIndex:0, pointerEvents:'none', opacity:0.025 }}>
-        {[500,380,260,140].map((s,i) => (
-          <div key={i} style={{ position:'absolute', bottom:0, left:0, transform:'translate(-50%,50%)', width:s, height:s, borderRadius:'50%', border:'1px solid #1a1a1a' }}/>
-        ))}
-      </div>
+      {/* ── Cercles d'ambiance plus visibles ── */}
+      
+      {/* 1. Haut Droite - Éclat Blanc Soyeux */}
+      <div style={{
+        position:'fixed', top:'-5%', right:'-5%', zIndex:0, pointerEvents:'none',
+        width:400, height:400, borderRadius:'50%',
+        background:'radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%)',
+        filter: 'blur(40px)',
+        animation: 'float-slow 20s infinite alternate ease-in-out'
+      }}/>
+
+      {/* 2. Milieu Gauche - Teinte Cuivrée Signature */}
+      <div style={{
+        position:'fixed', top:'35%', left:'-15%', zIndex:0, pointerEvents:'none',
+        width:500, height:500, borderRadius:'50%',
+        background:'radial-gradient(circle, rgba(183,100,72,0.12) 0%, rgba(183,100,72,0) 75%)',
+        filter: 'blur(60px)',
+        animation: 'float-slow 25s infinite alternate-reverse ease-in-out'
+      }}/>
+
+      {/* 3. Bas Droite - Profondeur Anthracite */}
+      <div style={{
+        position:'fixed', bottom:'-10%', right:'5%', zIndex:0, pointerEvents:'none',
+        width:600, height:600, borderRadius:'50%',
+        background:'radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 80%)',
+        filter: 'blur(80px)',
+      }}/>
+
+      <style>{`
+        @keyframes float-slow {
+          from { transform: translate(0, 0); }
+          to { transform: translate(30px, 50px); }
+        }
+      `}</style>
 
       <div style={{ maxWidth:1200, margin:'0 auto', padding:'56px 24px 0', position:'relative', zIndex:1 }}>
 
@@ -92,7 +121,7 @@ export default function Catalogue() {
                 </p>
                 <h2 className="font-display section-title" style={{ fontSize:26 }}>Produits vedettes</h2>
               </div>
-              <button onClick={() => setFiltre('Tout')} className="btn-outline" style={{ padding:'8px 18px', fontSize:11, display:'flex', alignItems:'center', gap:8 }}>
+              <button onClick={voirTout} className="btn-outline" style={{ padding:'8px 18px', fontSize:11, display:'flex', alignItems:'center', gap:8 }}>
                 Tout voir {Icon.Arrow}
               </button>
             </div>
@@ -117,8 +146,10 @@ export default function Catalogue() {
 
         {/* ── Bannière promo ── */}
         <div className="fade-up delay-2" style={{ background:'var(--primary)', borderRadius:16, padding:'36px 40px', marginBottom:64, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:20, position:'relative', overflow:'hidden' }}>
+          {/* Cercles internes à la bannière pour la cohérence */}
           <div style={{ position:'absolute', right:-40, top:-40, width:200, height:200, borderRadius:'50%', background:'rgba(255,255,255,0.03)' }}/>
           <div style={{ position:'absolute', right:60, bottom:-60, width:280, height:280, borderRadius:'50%', background:'rgba(183,100,72,0.12)' }}/>
+          
           <div style={{ position:'relative', zIndex:1 }}>
             <p className="section-label" style={{ color:'rgba(255,255,255,0.4)', marginBottom:8 }}>Offre exclusive</p>
             <h3 className="font-display" style={{ fontSize:28, fontWeight:700, color:'white', marginBottom:6 }}>Livraison offerte</h3>
@@ -131,7 +162,7 @@ export default function Catalogue() {
         </div>
 
         {/* ── Tous les produits ── */}
-        <section style={{ marginBottom:80 }}>
+        <section id="catalogue-complet" style={{ marginBottom:80 }}>
           <div className="fade-up" style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginBottom:24, flexWrap:'wrap', gap:16 }}>
             <div>
               <p className="section-label" style={{ marginBottom:6, display:'flex', alignItems:'center', gap:6 }}>{Icon.Bag} Catalogue complet</p>

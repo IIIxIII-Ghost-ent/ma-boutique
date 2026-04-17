@@ -85,7 +85,7 @@ export default function ProduitDetail() {
         <button onClick={() => navigate(-1)} style={{ background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:6, color:'var(--text-muted)', fontFamily:'Space Grotesk', fontSize:11, letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:40, transition:'color 0.2s' }}
           onMouseOver={e => e.currentTarget.style.color='var(--text-heading)'}
           onMouseOut={e  => e.currentTarget.style.color='var(--text-muted)'}>
-          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M19 12H5m0 0l7 7m-7-7l7-7"/></svg>
           Retour au catalogue
         </button>
 
@@ -95,10 +95,22 @@ export default function ProduitDetail() {
           <div>
             {/* Image principale grande */}
             <div className="fade-in" style={{ borderRadius:20, overflow:'hidden', background:'hsl(30,10%,93%)', position:'relative', cursor:'crosshair', aspectRatio:'3/4', minHeight:420, marginBottom:images.length>1?12:0 }}>
-              <img src={imgSrc} alt={produit.nom} onLoad={() => setImgLoaded(true)}
-                style={{ width:'100%', height:'100%', objectFit:'cover', display:'block', opacity:imgLoaded?1:0, transition:'opacity 0.5s ease, transform 0.7s ease' }}
-                onMouseOver={e => e.target.style.transform='scale(1.07)'}
-                onMouseOut={e  => e.target.style.transform='scale(1)'}/>
+<img 
+  src={imgSrc} 
+  alt={produit.nom} 
+  onLoad={() => setImgLoaded(true)}
+  style={{ 
+    width: '100%', 
+    height: '100%', 
+    objectFit: 'contain', // Changez 'cover' par 'contain'
+    display: 'block', 
+    background: '#f5f5f5', // Optionnel : fond pour remplir les vides
+    opacity: imgLoaded ? 1 : 0, 
+    transition: 'opacity 0.5s ease, transform 0.7s ease' 
+  }}
+  onMouseOver={e => e.target.style.transform = 'scale(1.07)'}
+  onMouseOut={e => e.target.style.transform = 'scale(1)'}
+/>
               {/* Badge catégorie */}
               <div style={{ position:'absolute', top:16, left:16, background:'rgba(255,255,255,0.92)', backdropFilter:'blur(10px)', borderRadius:999, padding:'6px 14px' }}>
                 <span style={{ fontFamily:'Space Grotesk', fontSize:10, fontWeight:600, letterSpacing:'0.12em', textTransform:'uppercase', color:'var(--text-heading)' }}>{produit.categorie}</span>
@@ -111,7 +123,7 @@ export default function ProduitDetail() {
             </div>
             {/* Miniatures */}
             {images.length > 1 && (
-              <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+              <div style={{ display:'flex', gap:8, flexWrap:'nowrap', overflowX:'auto', paddingBottom:8, scrollbarWidth:'none' }}>
                 {images.map((url, i) => (
                   <div key={i} onClick={() => { setActiveImg(i); setImgLoaded(false) }}
                     style={{ width:72, height:72, borderRadius:10, overflow:'hidden', cursor:'pointer', border: i===activeImg ? '2px solid var(--accent)' : '2px solid transparent', transition:'border-color 0.2s', flexShrink:0 }}>
@@ -127,17 +139,21 @@ export default function ProduitDetail() {
             <div className="accent-line line-accent-anim" style={{ marginBottom:20, animationDelay:'0.4s' }}/>
             <p style={{ fontFamily:'Space Grotesk', fontSize:11, letterSpacing:'0.2em', textTransform:'uppercase', color:'var(--text-muted)', marginBottom:10 }}>{produit.categorie}</p>
             <h1 className="font-display" style={{ fontSize:'clamp(28px,4vw,40px)', fontWeight:700, color:'var(--text-heading)', lineHeight:1.1, marginBottom:14 }}>{produit.nom}</h1>
-            <p className="font-display" style={{ fontSize:34, fontWeight:700, color:'var(--text-heading)', marginBottom:20 }}>{produit.prix} MAD</p>
+            <h2 className="font-display" style={{ fontSize:34, fontWeight:700, color:'var(--text-heading)', marginBottom:20 }}>{produit.prix} MAD</h2>
             <p style={{ fontSize:14, lineHeight:1.8, color:'var(--text-body)', marginBottom:28 }}>
               {produit.description || 'Pièce premium de la collection WYL. Coupe soignée, matières de qualité, finitions impeccables.'}
             </p>
 
             {/* Avantages */}
             <div style={{ display:'flex', gap:10, marginBottom:28, flexWrap:'wrap' }}>
-              {[['🚚','Livraison offerte'],['🛡','Qualité garantie'],['🔄','Retour 30j']].map(([ic,lb]) => (
-                <div key={lb} style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 12px', background:'white', border:'1px solid var(--border)', borderRadius:8 }}>
-                  <span style={{ fontSize:13 }}>{ic}</span>
-                  <span style={{ fontFamily:'Space Grotesk', fontSize:11, color:'var(--text-muted)', fontWeight:500 }}>{lb}</span>
+              {[
+                { label: 'Livraison offerte', icon: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polyline points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> },
+                { label: 'Qualité garantie', icon: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> },
+                { label: 'Retour 30j', icon: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> }
+              ].map((item) => (
+                <div key={item.label} style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 14px', background:'white', border:'1px solid var(--border)', borderRadius:8 }}>
+                  <span style={{ color:'var(--accent)', display:'flex' }}>{item.icon}</span>
+                  <span style={{ fontFamily:'Space Grotesk', fontSize:11, color:'var(--text-muted)', fontWeight:500 }}>{item.label}</span>
                 </div>
               ))}
             </div>
@@ -160,16 +176,23 @@ export default function ProduitDetail() {
               </div>
             </div>
 
-            {error && <p style={{ fontFamily:'Space Grotesk', fontSize:12, color:'#dc2626', marginBottom:12 }}>⚠ {error}</p>}
+            {error && (
+              <p style={{ fontFamily:'Space Grotesk', fontSize:12, color:'#dc2626', marginBottom:12, display:'flex', alignItems:'center', gap:6 }}>
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {error}
+              </p>
+            )}
 
             <button onClick={handleAdd} disabled={produit.stock===0} className={added?'btn-success':'btn-primary'}
               style={{ width:'100%', padding:'18px', fontSize:14, display:'flex', alignItems:'center', justifyContent:'center', gap:10, boxShadow:added?'0 8px 24px rgba(22,163,74,0.25)':'0 8px 24px rgba(0,0,0,0.12)', transition:'all 0.3s ease' }}>
-              {added ? '✓ Ajouté au panier' : produit.stock===0 ? 'Épuisé' : (
-                <><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Ajouter au panier</>
+              {added ? (
+                <><svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Ajouté au panier</>
+              ) : produit.stock===0 ? 'Épuisé' : (
+                <><svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Ajouter au panier</>
               )}
             </button>
             {produit.stock > 0 && produit.stock < 5 && (
-              <p style={{ textAlign:'center', fontFamily:'Space Grotesk', fontSize:11, color:'var(--accent)', marginTop:10 }}>Plus que {produit.stock} en stock !</p>
+              <p style={{ textAlign:'center', fontFamily:'Space Grotesk', fontSize:11, color:'var(--accent)', marginTop:12, fontWeight:500 }}>Plus que {produit.stock} articles disponibles</p>
             )}
           </div>
         </div>

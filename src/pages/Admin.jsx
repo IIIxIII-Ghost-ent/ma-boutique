@@ -8,11 +8,16 @@ const STATUT_BG    = { en_attente:'#fef3c7', confirme:'#dbeafe', expedie:'#ede9f
 const FORM_VIDE = { nom:'', description:'', prix:'', categorie:'', stock:'', disponible:true, vedette:false }
 
 /* ─── Upload helper ─── */
+// Le bucket "images" est déjà créé dans Supabase Storage (Public).
+// On n'utilise plus listBuckets() qui nécessite des droits admin non disponibles via clé anon.
 async function uploadImage(file) {
-  const ext  = file.name.split('.').pop()
+  const ext  = file.name.split('.').pop().toLowerCase()
   const path = `produits/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-  const { error } = await supabase.storage.from('images').upload(path, file, { upsert: true })
-  if (error) throw error
+  const { error } = await supabase.storage.from('images').upload(path, file, {
+    upsert: true,
+    contentType: file.type || 'image/jpeg',
+  })
+  if (error) throw new Error('Upload échoué : ' + error.message)
   const { data } = supabase.storage.from('images').getPublicUrl(path)
   return data.publicUrl
 }
@@ -80,6 +85,7 @@ export default function Admin() {
   const [form, setForm]         = useState(FORM_VIDE)
   const [images, setImages]     = useState([])   // [{ url, file?, uploading? }]
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadError, setUploadError] = useState(null)
 
   /* ── Auth ── */
   useEffect(() => {
@@ -118,6 +124,7 @@ export default function Admin() {
     setForm(FORM_VIDE)
     setImages([])
     setEditingId(null)
+    setUploadError(null)
     setShowForm(true)
   }
 
@@ -140,6 +147,7 @@ export default function Admin() {
     if (imgs.length === 0 && p.image_url) imgs = [p.image_url]
     setImages(imgs.map(url => ({ url })))
     setEditingId(p.id)
+    setUploadError(null)
     setShowForm(true)
   }
 
@@ -148,18 +156,24 @@ export default function Admin() {
     const nouvelles = files.map(f => ({ url: URL.createObjectURL(f), file: f, uploading: true }))
     setImages(prev => [...prev, ...nouvelles])
     let done = 0
+    let erreurs = []
     for (const nv of nouvelles) {
       try {
         const url = await uploadImage(nv.file)
         setImages(prev => prev.map(im => im.url === nv.url ? { url } : im))
-      } catch {
-        /* Si le bucket n'existe pas encore, on garde l'URL locale (preview only) */
-        setImages(prev => prev.map(im => im.url === nv.url ? { url: nv.url, local: true } : im))
+      } catch (err) {
+        const msg = err?.message || String(err)
+        console.error('Erreur upload image :', msg)
+        erreurs.push(msg)
+        setImages(prev => prev.map(im => im.url === nv.url ? { ...im, uploading: false, local: true, erreur: msg } : im))
       }
       done++
       setUploadProgress(Math.round((done / nouvelles.length) * 100))
     }
     setUploadProgress(0)
+    if (erreurs.length > 0) {
+      setUploadError(erreurs[0])
+    }
   }
 
   const supprimerImage = (idx) => setImages(prev => prev.filter((_,i) => i !== idx))
@@ -602,6 +616,16 @@ export default function Admin() {
                     <p style={{ fontSize:11, color:'var(--text-muted)', fontFamily:'Space Grotesk', marginTop:4 }}>Upload {uploadProgress}%…</p>
                   </div>
                 )}
+                {uploadError&&(
+                  <div style={{ marginTop:8, padding:'10px 14px', background:'#fee2e2', borderRadius:8, border:'1px solid #fecaca' }}>
+                    <p style={{ fontSize:12, color:'#dc2626', fontFamily:'Space Grotesk', fontWeight:600 }}>❌ Erreur upload</p>
+                    <p style={{ fontSize:11, color:'#991b1b', marginTop:4, fontFamily:'Space Grotesk' }}>{uploadError}</p>
+                    <p style={{ fontSize:11, color:'#b91c1c', marginTop:6, fontFamily:'Space Grotesk' }}>
+                      → Vérifiez dans Supabase : Storage → images → Policies → policy INSERT doit être sur <strong>authenticated</strong>
+                    </p>
+                    <button onClick={()=>setUploadError(null)} style={{ marginTop:8, fontSize:11, color:'#dc2626', background:'none', border:'none', cursor:'pointer', fontFamily:'Space Grotesk', textDecoration:'underline' }}>Fermer</button>
+                  </div>
+                )}
                 {/* Galerie d'images */}
                 {images.length>0&&(
                   <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10, marginTop:14 }}>
@@ -609,6 +633,7 @@ export default function Admin() {
                       <div key={idx} className={`img-thumb ${idx===0?'primary':''}`}>
                         <img src={im.url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
                         {im.uploading&&<div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.4)', display:'flex', alignItems:'center', justifyContent:'center' }}><span style={{ fontSize:18, animation:'spin-slow 1s linear infinite', display:'inline-block' }}>⏳</span></div>}
+                        {im.local&&!im.uploading&&<div style={{ position:'absolute', inset:0, background:'rgba(220,38,38,0.7)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:4 }}><span style={{ fontSize:16 }}>⚠️</span><span style={{ fontSize:8, color:'white', textAlign:'center', fontFamily:'Space Grotesk', lineHeight:1.2 }}>Upload échoué</span></div>}
                         <div className="img-thumb-actions">
                           {idx!==0&&<button onClick={()=>setPrimaire(idx)} title="Mettre en avant" style={{ background:'rgba(255,255,255,0.9)', border:'none', borderRadius:4, width:26, height:26, cursor:'pointer', fontSize:12 }}>⭐</button>}
                           <button onClick={()=>supprimerImage(idx)} style={{ background:'rgba(220,38,38,0.9)', border:'none', borderRadius:4, width:26, height:26, cursor:'pointer', color:'white', fontSize:13 }}>✕</button>
