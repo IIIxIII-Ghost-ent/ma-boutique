@@ -138,18 +138,7 @@ export default function Shop() {
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.15) 35%, rgba(0,0,0,0.72) 75%, rgba(0,0,0,0.92) 100%)' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0) 50%)' }} />
 
-        {/* SS 2026 tag */}
-        {loaded && (
-          <div style={{
-            position: 'absolute', top: isMobile ? 18 : 30, right: isMobile ? 18 : 36,
-            fontFamily: 'Barlow, sans-serif', fontSize: 9, fontWeight: 700, letterSpacing: '0.28em',
-            textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)',
-            border: '1px solid rgba(255,255,255,0.15)', padding: '5px 13px',
-            animation: 'heroFadeRight 0.9s cubic-bezier(0.22,1,0.36,1) 0.4s both',
-          }}>
-            SS 2026
-          </div>
-        )}
+       
 
         {/* Hero content */}
         <div style={{
