@@ -69,7 +69,13 @@ export default function ProduitDetail() {
   if (!produit) return <div style={{ textAlign:'center', padding:'80px 32px' }}><p style={{ fontFamily:'Space Grotesk', color:'var(--text-muted)' }}>Produit introuvable.</p></div>
 
   const images = parseImages(produit)
-  const imgSrc = images[activeImg] || images[0] || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=800&q=85'
+  const getOptimizedUrl = (url, w = 800) => {
+    if (!url) return null
+    if (url.includes('supabase') && url.includes('/storage/')) return url + (url.includes('?') ? '&' : '?') + `width=${w}&quality=80&format=webp`
+    if (url.includes('unsplash.com')) return url.replace(/w=\d+/, `w=${w}`).replace(/q=\d+/, 'q=80')
+    return url
+  }
+  const imgSrc = getOptimizedUrl(images[activeImg] || images[0]) || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=800&q=80'
 
   return (
     <div style={{ minHeight:'100vh', background:'var(--background)', position:'relative' }}>

@@ -4,28 +4,18 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   build: {
+    // Split vendor chunks for better caching
     rollupOptions: {
       output: {
-        // Correction : Utilisation d'une fonction au lieu d'un objet
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'vendor';
-            }
-            if (id.includes('react-router-dom')) {
-              return 'router';
-            }
-            if (id.includes('@supabase/supabase-js')) {
-              return 'supabase';
-            }
-            return 'others'; // Regroupe le reste des dépendances
-          }
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          supabase: ['@supabase/supabase-js'],
         },
       },
     },
+    // Compress assets
     chunkSizeWarningLimit: 600,
   },
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', '@supabase/supabase-js'],
-  },
+  // Image optimization
+  assetsInlineLimit: 4096,
 })
