@@ -557,13 +557,29 @@ export default function Panier() {
 
   const confirmerCommande = async () => {
     setLoading(true)
-    const totalSnapshot = total  // capture avant viderPanier()
-    const { data, error } = await supabase.from('commandes').insert({
-      client_nom: nom, client_telephone: telephone, client_adresse: adresse,
-      articles: panier, total: totalSnapshot, statut: 'en_attente', mode_paiement: paiement,
-    }).select().single()
-    if (error) { alert('Une erreur est survenue. Veuillez réessayer.'); setLoading(false); return }
-    setTotalConfirme(totalSnapshot)  // garder le total avant de vider
+    const totalSnapshot = total
+    const articlesJson = JSON.parse(JSON.stringify(panier))
+    const payload = {
+      client_nom: nom,
+      client_telephone: telephone,
+      client_adresse: adresse,
+      articles: articlesJson,
+      total: Number(totalSnapshot),
+      statut: 'en_attente',
+      mode_paiement: paiement,
+    }
+    const { data, error } = await supabase
+      .from('commandes')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) {
+      console.error('Supabase INSERT error:', JSON.stringify(error, null, 2))
+      alert(`Erreur (${error.code}): ${error.message}${error.details ? '\nDetails: ' + error.details : ''}${error.hint ? '\nAide: ' + error.hint : ''}`)
+      setLoading(false)
+      return
+    }
+    setTotalConfirme(totalSnapshot)
     viderPanier()
     setCommande(data || { id: 'WYL' + Date.now() })
     setLoading(false)
