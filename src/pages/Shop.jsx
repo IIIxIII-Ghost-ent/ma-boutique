@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase'
 import ProduitCard from '../components/ProduitCard'
 import Navbar from '../components/Navbar'
 import FooterComponent from '../components/Footer'
+import heroDesktop from '../assets/im1.png'
+import heroMobile from '../assets/imMobile.png'
 
 function parseImages(p) {
   if (!p) return []
@@ -80,10 +82,8 @@ export default function Shop() {
   const displayBest = bestSellers.length > 0 ? bestSellers : nouveautes.slice(0, 4)
   const displayNew  = nouveautes.slice(0, 4)
 
-  // Hero image — use compressed version
-  const heroDesktopSrc = '/src/assets/im1.png'
-  const heroMobileSrc  = '/src/assets/imMobile.png'
-  const heroSrc = isMobile ? heroMobileSrc : heroDesktopSrc
+  // Hero image — properly imported so Vite hashes them for production
+  const heroSrc = isMobile ? heroMobile : heroDesktop
 
   return (
     <div style={{ minHeight: '100vh', background: 'white' }}>
