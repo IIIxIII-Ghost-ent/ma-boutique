@@ -211,15 +211,43 @@ export default function Shop() {
       `}</style>
 
       {/* ══ FEATURES BAR ══ */}
-      <div className="feat-bar">
-        {FEATURES.map(f => (
-          <div key={f.title} className="feat-item">
-            <div style={{ color: '#b76448', marginBottom: 8, display: 'flex', justifyContent: 'center' }}>{f.icon}</div>
-            <p style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#111', marginBottom: 2 }}>{f.title}</p>
-            <p style={{ fontFamily: 'Barlow, sans-serif', fontSize: 11, color: '#999', lineHeight: 1.5 }}>{f.desc}</p>
+     
+   <section style={{ padding: '60px 0' }}>
+        <div style={{ maxWidth: 1320, margin: '0 auto', padding: '0 24px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 22, paddingBottom: 14, borderBottom: '1px solid #e8e5e0', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <p style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.32em', textTransform: 'uppercase', color: '#aaa', marginBottom: 2 }}>Arrivages récents</p>
+              <h2 style={{ fontFamily: 'Barlow Condensed', fontSize: 'clamp(26px,4vw,40px)', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>New Releases</h2>
+            </div>
+            <button onClick={() => navigate('/catalogue')}
+              style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'transparent', border: '1.5px solid #e8e5e0', color: '#111', padding: '9px 18px', cursor: 'pointer', transition: 'border-color 0.2s' }}
+              onMouseOver={e => e.currentTarget.style.borderColor='#111'}
+              onMouseOut={e => e.currentTarget.style.borderColor='#e8e5e0'}
+            >Voir tout →</button>
           </div>
-        ))}
-      </div>
+
+          {loading ? (
+            <div className="shop-grid">
+              {[1,2,3,4].map(i => (
+                <div key={i}>
+                  <div className="shimmer" style={{ aspectRatio: '3/4' }} />
+                  <div style={{ padding: '12px 0' }}>
+                    <div className="shimmer" style={{ height: 13, borderRadius: 2, marginBottom: 7 }} />
+                    <div className="shimmer" style={{ height: 11, borderRadius: 2, width: '55%' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="shop-grid">
+              {displayNew.map((p, i) => {
+                const imgs = parseImages(p)
+                return <ProduitCard key={p.id} produit={{ ...p, image_url: imgs[0] || p.image_url }} index={i} />
+              })}
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* ══ BEST SELLERS ══ */}
       <section id="best-sellers" style={{ padding: '60px 0' }}>
@@ -280,42 +308,7 @@ export default function Shop() {
       </div>
 
       {/* ══ NEW RELEASES ══ */}
-      <section style={{ padding: '60px 0' }}>
-        <div style={{ maxWidth: 1320, margin: '0 auto', padding: '0 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 22, paddingBottom: 14, borderBottom: '1px solid #e8e5e0', flexWrap: 'wrap', gap: 12 }}>
-            <div>
-              <p style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.32em', textTransform: 'uppercase', color: '#aaa', marginBottom: 2 }}>Arrivages récents</p>
-              <h2 style={{ fontFamily: 'Barlow Condensed', fontSize: 'clamp(26px,4vw,40px)', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>New Releases</h2>
-            </div>
-            <button onClick={() => navigate('/catalogue')}
-              style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'transparent', border: '1.5px solid #e8e5e0', color: '#111', padding: '9px 18px', cursor: 'pointer', transition: 'border-color 0.2s' }}
-              onMouseOver={e => e.currentTarget.style.borderColor='#111'}
-              onMouseOut={e => e.currentTarget.style.borderColor='#e8e5e0'}
-            >Voir tout →</button>
-          </div>
-
-          {loading ? (
-            <div className="shop-grid">
-              {[1,2,3,4].map(i => (
-                <div key={i}>
-                  <div className="shimmer" style={{ aspectRatio: '3/4' }} />
-                  <div style={{ padding: '12px 0' }}>
-                    <div className="shimmer" style={{ height: 13, borderRadius: 2, marginBottom: 7 }} />
-                    <div className="shimmer" style={{ height: 11, borderRadius: 2, width: '55%' }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="shop-grid">
-              {displayNew.map((p, i) => {
-                const imgs = parseImages(p)
-                return <ProduitCard key={p.id} produit={{ ...p, image_url: imgs[0] || p.image_url }} index={i} />
-              })}
-            </div>
-          )}
-        </div>
-      </section>
+   
 
       <FooterComponent />
     </div>

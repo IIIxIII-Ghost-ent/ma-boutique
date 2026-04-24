@@ -92,18 +92,12 @@ export default function Footer() {
 
             {/* Vrais logos paiement */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
-              <FooterCashLogo />
               <FooterWaveLogo />
               <FooterVisaLogo />
               <FooterMastercardLogo />
             </div>
 
-            {/* IBAN hint */}
-            <div style={{ marginTop: 16, padding: '12px 14px', background: 'rgba(255,255,255,0.05)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)' }}>
-              <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontFamily: 'Barlow', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 5 }}>IBAN CIH Bank (Visa & Mastercard)</p>
-              <p style={{ fontFamily: 'monospace', fontSize: 11, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.06em' }}>MA64 2308 1558 6090 7211 0074 0060</p>
-            </div>
-          </div>
+                    </div>
         </div>
 
         <div className="footer-bottom">
