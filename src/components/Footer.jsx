@@ -4,8 +4,7 @@ const IcoIG = () => <svg width="15" height="15" fill="currentColor" viewBox="0 0
 const IcoTT = () => <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34l-.02-8.43a8.18 8.18 0 004.78 1.52V5.02a4.85 4.85 0 01-1-.33z"/></svg>
 const IcoWA = () => <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
 
-// ─── Logos paiement réels ──────────────────────────────────────────────────
-
+// --- Logos paiement ---
 const FooterVisaLogo = () => (
   <div title="Visa" style={{ background: '#1A1F71', borderRadius: 8, padding: '6px 12px', display: 'flex', alignItems: 'center', height: 40 }}>
     <svg viewBox="0 0 750 471" xmlns="http://www.w3.org/2000/svg" style={{ width: 46, height: 28 }}>
@@ -33,27 +32,35 @@ const FooterWaveLogo = () => (
   </div>
 )
 
-const FooterCashLogo = () => (
-  <div title="Cash à la livraison" style={{ background: '#16a34a', borderRadius: 8, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, height: 40 }}>
-    <span style={{ fontSize: 16 }}>💵</span>
-    <span style={{ fontFamily: 'Barlow, sans-serif', fontWeight: 800, fontSize: 10, color: 'white', letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Cash</span>
-  </div>
-)
-
 export default function Footer() {
   return (
     <footer className="site-footer">
+      {/* Ajout des styles inline pour le centrage mobile */}
+      <style>{`
+        @media (max-width: 768px) {
+          .footer-top {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 40px;
+          }
+          .social-links, .footer-payment-logos {
+            justify-content: center;
+          }
+          .footer-link {
+            display: block;
+            margin: 10px 0;
+          }
+        }
+      `}</style>
+
       <div className="footer-inner">
         <div className="footer-top">
-
           {/* Brand */}
           <div>
             <div className="footer-logo">WYL<span style={{ color: 'var(--accent)' }}>.</span></div>
-            <p className="footer-tagline">
-              Wear Your Legacy.<br />
-              Streetwear authentique, fabriqué pour durer. Maroc.
-            </p>
-            <div className="social-links">
+            <div className="social-links" style={{ display: 'flex', gap: 12 }}>
               {[
                 { label: 'Instagram', href: '#', icon: <IcoIG /> },
                 { label: 'TikTok', href: '#', icon: <IcoTT /> },
@@ -73,16 +80,6 @@ export default function Footer() {
             <Link to="/catalogue" className="footer-link">Best Sellers</Link>
           </div>
 
-          {/* Service client */}
-          <div>
-            <p className="footer-col-title">Service client</p>
-            <Link to="/contact" className="footer-link">Nous contacter</Link>
-            <a href="https://wa.me/212675014485" target="_blank" rel="noreferrer" className="footer-link">WhatsApp</a>
-            <span className="footer-link" style={{ cursor: 'default' }}>Livraison offerte au Maroc</span>
-            <span className="footer-link" style={{ cursor: 'default' }}>Retours sous 30 jours</span>
-            <span className="footer-link" style={{ cursor: 'default' }}>+212 675-014485</span>
-          </div>
-
           {/* Paiement */}
           <div>
             <p className="footer-col-title">Paiement Sécurisé</p>
@@ -90,17 +87,15 @@ export default function Footer() {
               Transactions 100% sécurisées.<br />Paiement à la livraison disponible.
             </p>
 
-            {/* Vrais logos paiement */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+            <div className="footer-payment-logos" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
               <FooterWaveLogo />
               <FooterVisaLogo />
               <FooterMastercardLogo />
             </div>
-
-                    </div>
+          </div>
         </div>
 
-        <div className="footer-bottom">
+        <div className="footer-bottom" style={{ textAlign: 'center', marginTop: 60, borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 30 }}>
           <p className="footer-copy">© 2026 WYL — Wear Your Legacy. Tous droits réservés.</p>
           <p className="footer-copy">Streetwear · Maroc · SS 2026</p>
         </div>

@@ -318,8 +318,8 @@ function StepLivraison({ nom, setNom, telephone, setTelephone, adresse, setAdres
 const METHODS = [
   { id:'cod',        label:'Cash à la livraison', description:'Payez en espèces à la réception', logo:<CashLogo h={30}/>, color:'#16a34a', badge:'Le plus populaire' },
   { id:'wave',       label:'Wave Sénégal',         description:'Paiement instantané',            logo:<WaveLogo h={26}/>, color:'#1BA5E0', badge:'Instantané' },
-  { id:'visa',       label:'Visa',                 description:'Visa Bank',        logo:<VisaLogo h={26}/>, color:'#1A1F71' },
-  { id:'mastercard', label:'Mastercard',            description:'Virement IBAN — CIH Bank',        logo:<MastercardLogo h={26}/>, color:'#EB001B' },
+  { id:'visa',       label:'Visa',                 description:'Visa Bank',                      logo:<VisaLogo h={26}/>, color:'#1A1F71' },
+  { id:'mastercard', label:'Mastercard',            description:'Virement IBAN — CIH Bank',       logo:<MastercardLogo h={26}/>, color:'#EB001B' },
 ]
 
 function StepPaiement({ nom, telephone, adresse, total, paiement, setPaiement, goBack, onConfirm, loading }) {
@@ -504,15 +504,16 @@ function ConfirmationWave({ commande, total }) {
   )
 }
 
-function ConfirmationVirement({ commande, total, method }) {
+/* ── Visa : QR Code (identique au premier code) ── */
+function ConfirmationVisa({ commande, total }) {
   const [paid, setPaid] = useState(false)
-  const color = method === 'visa' ? '#1A1F71' : '#EB001B'
+  const color = '#1A1F71'
   const ref = `WYL-${commande.id?.slice(-6).toUpperCase() || 'WYL001'}`
   return (
     <div>
       <div style={{ textAlign:'center', marginBottom:28 }}>
-        <div style={{ width:66, height:66, borderRadius:'50%', background: color, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 18px', animation:'popIn .5s cubic-bezier(.22,1,.36,1)' }}>
-          {method === 'visa' ? <VisaLogo h={30}/> : <MastercardLogo h={30}/>}
+        <div style={{ width:66, height:66, borderRadius:'50%', background:color, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 18px', animation:'popIn .5s cubic-bezier(.22,1,.36,1)' }}>
+          <VisaLogo h={30}/>
         </div>
         <h2 style={{ fontFamily:'Barlow Condensed', fontWeight:900, fontSize:28, textTransform:'uppercase', letterSpacing:'.04em', color:'#111', margin:'0 0 6px' }}>Finalisez votre paiement</h2>
         <p style={{ fontFamily:'Barlow', fontSize:13, color:'#888', margin:0 }}>Commande #{ref} · En attente</p>
@@ -556,6 +557,57 @@ function ConfirmationVirement({ commande, total, method }) {
         </div>
       </div>
       <div style={{ textAlign:'center', marginTop:24 }}>
+        <Link to="/catalogue" className="btn btn-dark" style={{ textDecoration:'none' }}>Retour à la boutique</Link>
+      </div>
+    </div>
+  )
+}
+
+/* ── Mastercard : IBAN avec boutons copier (second code) ── */
+function ConfirmationMastercard({ commande, total }) {
+  const [copied, setCopied] = useState(null)
+  const color = '#EB001B'
+  const ref = `WYL-${commande.id?.slice(-6).toUpperCase() || 'WYL001'}`
+  const copy = (text, key) => {
+    navigator.clipboard.writeText(text)
+    setCopied(key)
+    setTimeout(() => setCopied(null), 2200)
+  }
+  const CopyBtn = ({ text, k }) => (
+    <button onClick={() => copy(text, k)}
+      style={{ display:'flex', alignItems:'center', gap:5, background: copied === k ? '#16a34a' : color, color:'white', border:'none', borderRadius:6, padding:'6px 11px', fontFamily:'Barlow', fontSize:10, fontWeight:700, letterSpacing:'.06em', textTransform:'uppercase', cursor:'pointer', flexShrink:0 }}>
+      {copied === k ? '✓ Copié' : 'Copier'}
+    </button>
+  )
+  return (
+    <div>
+      <div style={{ textAlign:'center', marginBottom:28 }}>
+        <h2 style={{ fontFamily:'Barlow Condensed', fontWeight:900, fontSize:28, textTransform:'uppercase', letterSpacing:'.04em', color:'#111', margin:'0 0 6px' }}>Effectuez votre virement</h2>
+        <p style={{ fontFamily:'Barlow', fontSize:13, color:'#888', margin:0 }}>Commande #{ref} · En attente</p>
+      </div>
+      <div style={{ background:'#eef0fb', border:`1.5px solid ${color}25`, borderRadius:14, padding:22, maxWidth:560, margin:'0 auto 18px' }}>
+        <div style={{ background:'white', borderRadius:10, overflow:'hidden', border:`1px solid ${color}15` }}>
+          {[['IBAN du bénéficiaire', <code style={{ fontFamily:'monospace', fontSize:13, fontWeight:700, color:'#111', letterSpacing:'.04em' }}>{IBAN}</code>, IBAN_CLEAN, 'iban'],
+            ['Montant exact', <span style={{ fontFamily:'Barlow Condensed', fontWeight:900, fontSize:26, color }}>{total} <span style={{ fontSize:14 }}>MAD</span></span>, `${total}`, 'montant'],
+            ['Référence obligatoire', <code style={{ fontFamily:'monospace', fontSize:13, fontWeight:700, color:'#111' }}>{ref}</code>, ref, 'ref']
+          ].map(([label, display, copyText, key]) => (
+            <div key={key} style={{ padding:'13px 16px', borderBottom: key !== 'ref' ? `1px solid ${color}10` : 'none' }}>
+              <p style={{ fontFamily:'Barlow', fontSize:9, color:'#bbb', letterSpacing:'.2em', textTransform:'uppercase', margin:'0 0 5px' }}>{label}</p>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, flexWrap:'wrap' }}>
+                {display}
+                <CopyBtn text={copyText} k={key}/>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ maxWidth:560, margin:'0 auto 22px', background:'#fffbeb', border:'1px solid #fcd34d', borderRadius:10, padding:'12px 14px', display:'flex', gap:10 }}>
+        <svg width="17" height="17" fill="none" stroke="#d97706" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink:0, marginTop:1 }}><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <p style={{ fontFamily:'Barlow', fontSize:12, color:'#92400e', lineHeight:1.7, margin:0 }}>
+          Mentionnez <strong>impérativement</strong> la référence <strong>{ref}</strong> dans votre virement.
+        </p>
+      </div>
+      <div style={{ textAlign:'center' }}>
         <Link to="/catalogue" className="btn btn-dark" style={{ textDecoration:'none' }}>Retour à la boutique</Link>
       </div>
     </div>
@@ -623,9 +675,10 @@ export default function Panier() {
           <StepPanier panier={panier} retirerDuPanier={retirerDuPanier} modifierQuantite={modifierQuantite} total={total} goNext={() => setStep(2)}/>
         ) : step === 4 ? (
           <div style={{ maxWidth:720, margin:'0 auto' }}>
-            {paiement === 'cod' && <ConfirmationCOD commande={commande} total={totalConfirme}/>}
-            {paiement === 'wave' && <ConfirmationWave commande={commande} total={totalConfirme}/>}
-            {(paiement === 'visa' || paiement === 'mastercard') && <ConfirmationVirement commande={commande} total={totalConfirme} method={paiement}/>}
+            {paiement === 'cod'        && <ConfirmationCOD        commande={commande} total={totalConfirme}/>}
+            {paiement === 'wave'       && <ConfirmationWave       commande={commande} total={totalConfirme}/>}
+            {paiement === 'visa'       && <ConfirmationVisa       commande={commande} total={totalConfirme}/>}
+            {paiement === 'mastercard' && <ConfirmationMastercard commande={commande} total={totalConfirme}/>}
           </div>
         ) : null}
       </div>
