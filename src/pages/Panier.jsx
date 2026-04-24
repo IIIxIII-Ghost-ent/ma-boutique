@@ -317,8 +317,8 @@ function StepLivraison({ nom, setNom, telephone, setTelephone, adresse, setAdres
 /* ── Étape 3 Paiement ── */
 const METHODS = [
   { id:'cod',        label:'Cash à la livraison', description:'Payez en espèces à la réception', logo:<CashLogo h={30}/>, color:'#16a34a', badge:'Le plus populaire' },
-  { id:'wave',       label:'Wave Sénégal',         description:'QR Code — instantané',            logo:<WaveLogo h={26}/>, color:'#1BA5E0', badge:'Instantané' },
-  { id:'visa',       label:'Visa',                 description:'Virement IBAN — CIH Bank',        logo:<VisaLogo h={26}/>, color:'#1A1F71' },
+  { id:'wave',       label:'Wave Sénégal',         description:'Paiement instantané',            logo:<WaveLogo h={26}/>, color:'#1BA5E0', badge:'Instantané' },
+  { id:'visa',       label:'Visa',                 description:'Visa Bank',        logo:<VisaLogo h={26}/>, color:'#1A1F71' },
   { id:'mastercard', label:'Mastercard',            description:'Virement IBAN — CIH Bank',        logo:<MastercardLogo h={26}/>, color:'#EB001B' },
 ]
 
@@ -439,6 +439,13 @@ function ConfirmationCOD({ commande, total }) {
 
 function ConfirmationWave({ commande, total }) {
   const [paid, setPaid] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const WAVE_NUMBER = '+221 778085106'
+  const copyNumber = () => {
+    navigator.clipboard.writeText(WAVE_NUMBER.replace(/\s/g, ''))
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2200)
+  }
   return (
     <div>
       <div style={{ textAlign:'center', marginBottom:28 }}>
@@ -449,18 +456,24 @@ function ConfirmationWave({ commande, total }) {
         <p style={{ fontFamily:'Barlow', fontSize:13, color:'#888', margin:0 }}>Commande #{commande.id?.slice(-6).toUpperCase() || 'WYL001'} · En attente</p>
       </div>
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:18, maxWidth:680, margin:'0 auto' }} className="wave-confirm-grid">
-        <div style={{ background:'#e8f6fd', border:'2px solid #1BA5E0', borderRadius:14, padding:20, textAlign:'center' }}>
-          <p style={{ fontFamily:'Barlow', fontSize:10, fontWeight:700, letterSpacing:'.18em', textTransform:'uppercase', color:'#1BA5E0', marginBottom:14 }}>Scannez avec Wave</p>
-          <div style={{ background:'white', borderRadius:10, padding:8, display:'inline-block', boxShadow:'0 4px 16px rgba(27,165,224,.12)', border:'3px solid #1BA5E0', marginBottom:12 }}>
-            <img src={waveQR} alt="QR Code Wave" loading="lazy" style={{ width:140, height:140, objectFit:'cover', borderRadius:6, display:'block' }}/>
+        {/* Numéro Wave */}
+        <div style={{ background:'#e8f6fd', border:'2px solid #1BA5E0', borderRadius:14, padding:24, textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:16 }}>
+          <p style={{ fontFamily:'Barlow', fontSize:10, fontWeight:700, letterSpacing:'.18em', textTransform:'uppercase', color:'#1BA5E0', margin:0 }}>Envoyez sur Wave</p>
+          <div style={{ background:'white', borderRadius:12, padding:'20px 24px', boxShadow:'0 4px 16px rgba(27,165,224,.12)', border:'3px solid #1BA5E0', width:'100%', boxSizing:'border-box' }}>
+            <p style={{ fontFamily:'Barlow', fontSize:9, color:'#aaa', letterSpacing:'.14em', textTransform:'uppercase', margin:'0 0 8px' }}>Numéro Wave</p>
+            <p style={{ fontFamily:'Barlow Condensed', fontWeight:900, fontSize:28, color:'#1BA5E0', margin:'0 0 12px', letterSpacing:'.04em' }}>{WAVE_NUMBER}</p>
+            <button onClick={copyNumber}
+              style={{ background: copied ? '#16a34a' : '#1BA5E0', color:'white', border:'none', borderRadius:8, padding:'8px 18px', fontFamily:'Barlow', fontSize:10, fontWeight:700, letterSpacing:'.1em', textTransform:'uppercase', cursor:'pointer', width:'100%', transition:'background .2s' }}>
+              {copied ? '✓ Copié !' : 'Copier le numéro'}
+            </button>
           </div>
-          <div style={{ background:'white', borderRadius:8, padding:'9px 14px', border:'1px solid #bae6fd' }}>
+          <div style={{ background:'white', borderRadius:8, padding:'9px 14px', border:'1px solid #bae6fd', width:'100%', boxSizing:'border-box' }}>
             <p style={{ fontFamily:'Barlow', fontSize:9, color:'#aaa', letterSpacing:'.12em', textTransform:'uppercase', margin:'0 0 2px' }}>Montant exact</p>
             <p style={{ fontFamily:'Barlow Condensed', fontWeight:900, fontSize:26, color:'#1BA5E0', margin:0 }}>{total} <span style={{ fontSize:13 }}>MAD</span></p>
           </div>
         </div>
         <div>
-          {[['Ouvrez',"l'app Wave Sénégal"],['Scannez','le QR Code avec la caméra'],['Entrez',`le montant exact : ${total} MAD`],['Validez','et gardez la capture']].map(([b,r],i) => (
+          {[['Ouvrez',"l'app Wave Sénégal"],['Appuyez',"sur « Envoyer »"],['Entrez',`le numéro : ${WAVE_NUMBER}`],['Saisissez',`le montant exact : ${total} MAD`],['Validez','et gardez la capture']].map(([b,r],i) => (
             <div key={b} style={{ display:'flex', gap:10, marginBottom:12 }}>
               <div style={{ width:26, height:26, borderRadius:'50%', background:'#f0f9ff', border:'1.5px solid #7dd3fc', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                 <span style={{ fontFamily:'Barlow', fontSize:11, fontWeight:800, color:'#1BA5E0' }}>{i+1}</span>
@@ -492,49 +505,57 @@ function ConfirmationWave({ commande, total }) {
 }
 
 function ConfirmationVirement({ commande, total, method }) {
-  const [copied, setCopied] = useState(null)
+  const [paid, setPaid] = useState(false)
   const color = method === 'visa' ? '#1A1F71' : '#EB001B'
   const ref = `WYL-${commande.id?.slice(-6).toUpperCase() || 'WYL001'}`
-  const copy = (text, key) => {
-    navigator.clipboard.writeText(text)
-    setCopied(key)
-    setTimeout(() => setCopied(null), 2200)
-  }
-  const CopyBtn = ({ text, k }) => (
-    <button onClick={() => copy(text, k)}
-      style={{ display:'flex', alignItems:'center', gap:5, background: copied === k ? '#16a34a' : color, color:'white', border:'none', borderRadius:6, padding:'6px 11px', fontFamily:'Barlow', fontSize:10, fontWeight:700, letterSpacing:'.06em', textTransform:'uppercase', cursor:'pointer', flexShrink:0 }}>
-      {copied === k ? '✓ Copié' : 'Copier'}
-    </button>
-  )
   return (
     <div>
       <div style={{ textAlign:'center', marginBottom:28 }}>
-        <h2 style={{ fontFamily:'Barlow Condensed', fontWeight:900, fontSize:28, textTransform:'uppercase', letterSpacing:'.04em', color:'#111', margin:'0 0 6px' }}>Effectuez votre virement</h2>
+        <div style={{ width:66, height:66, borderRadius:'50%', background: color, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 18px', animation:'popIn .5s cubic-bezier(.22,1,.36,1)' }}>
+          {method === 'visa' ? <VisaLogo h={30}/> : <MastercardLogo h={30}/>}
+        </div>
+        <h2 style={{ fontFamily:'Barlow Condensed', fontWeight:900, fontSize:28, textTransform:'uppercase', letterSpacing:'.04em', color:'#111', margin:'0 0 6px' }}>Finalisez votre paiement</h2>
         <p style={{ fontFamily:'Barlow', fontSize:13, color:'#888', margin:0 }}>Commande #{ref} · En attente</p>
       </div>
-      <div style={{ background:'#eef0fb', border:`1.5px solid ${color}25`, borderRadius:14, padding:22, maxWidth:560, margin:'0 auto 18px' }}>
-        <div style={{ background:'white', borderRadius:10, overflow:'hidden', border:`1px solid ${color}15` }}>
-          {[['IBAN du bénéficiaire', <code style={{ fontFamily:'monospace', fontSize:13, fontWeight:700, color:'#111', letterSpacing:'.04em' }}>{IBAN}</code>, IBAN_CLEAN, 'iban'],
-            ['Montant exact', <span style={{ fontFamily:'Barlow Condensed', fontWeight:900, fontSize:26, color }}>{total} <span style={{ fontSize:14 }}>MAD</span></span>, `${total}`, 'montant'],
-            ['Référence obligatoire', <code style={{ fontFamily:'monospace', fontSize:13, fontWeight:700, color:'#111' }}>{ref}</code>, ref, 'ref']
-          ].map(([label, display, copyText, key]) => (
-            <div key={key} style={{ padding:'13px 16px', borderBottom: key !== 'ref' ? `1px solid ${color}10` : 'none' }}>
-              <p style={{ fontFamily:'Barlow', fontSize:9, color:'#bbb', letterSpacing:'.2em', textTransform:'uppercase', margin:'0 0 5px' }}>{label}</p>
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, flexWrap:'wrap' }}>
-                {display}
-                <CopyBtn text={copyText} k={key}/>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:18, maxWidth:680, margin:'0 auto' }} className="wave-confirm-grid">
+        {/* QR Code */}
+        <div style={{ background:`${color}0d`, border:`2px solid ${color}`, borderRadius:14, padding:24, textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:14 }}>
+          <p style={{ fontFamily:'Barlow', fontSize:10, fontWeight:700, letterSpacing:'.18em', textTransform:'uppercase', color, margin:0 }}>Scannez pour payer</p>
+          <div style={{ background:'white', borderRadius:10, padding:8, display:'inline-block', boxShadow:`0 4px 16px ${color}20`, border:`3px solid ${color}` }}>
+            <img src={waveQR} alt="QR Code paiement" loading="lazy" style={{ width:150, height:150, objectFit:'cover', borderRadius:6, display:'block' }}/>
+          </div>
+          <div style={{ background:'white', borderRadius:8, padding:'9px 14px', border:`1px solid ${color}30`, width:'100%', boxSizing:'border-box' }}>
+            <p style={{ fontFamily:'Barlow', fontSize:9, color:'#aaa', letterSpacing:'.12em', textTransform:'uppercase', margin:'0 0 2px' }}>Montant exact</p>
+            <p style={{ fontFamily:'Barlow Condensed', fontWeight:900, fontSize:26, color, margin:0 }}>{total} <span style={{ fontSize:13 }}>MAD</span></p>
+          </div>
+        </div>
+        {/* Étapes */}
+        <div>
+          {[['Ouvrez','votre application bancaire'],['Appuyez',"sur « Scanner un QR Code »"],['Scannez','le QR Code ci-contre'],['Vérifiez',`le montant : ${total} MAD`],['Validez','et gardez la capture']].map(([b,r],i) => (
+            <div key={b} style={{ display:'flex', gap:10, marginBottom:12 }}>
+              <div style={{ width:26, height:26, borderRadius:'50%', background:`${color}12`, border:`1.5px solid ${color}50`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <span style={{ fontFamily:'Barlow', fontSize:11, fontWeight:800, color }}>{i+1}</span>
+              </div>
+              <div style={{ paddingTop:4 }}>
+                <span style={{ fontFamily:'Barlow', fontWeight:700, fontSize:13, color:'#111' }}>{b} </span>
+                <span style={{ fontFamily:'Barlow', fontSize:13, color:'#666' }}>{r}</span>
               </div>
             </div>
           ))}
+          {!paid ? (
+            <button onClick={() => setPaid(true)}
+              style={{ width:'100%', background:color, color:'white', border:'none', padding:'12px 18px', fontFamily:'Barlow', fontSize:11, fontWeight:700, letterSpacing:'.1em', textTransform:'uppercase', cursor:'pointer', borderRadius:8, marginTop:8 }}>
+              ✓ J'ai effectué le paiement
+            </button>
+          ) : (
+            <div style={{ background:'#f0fdf4', border:'1px solid #86efac', borderRadius:8, padding:'12px 14px', marginTop:8 }}>
+              <p style={{ fontFamily:'Barlow', fontWeight:700, fontSize:13, color:'#15803d', margin:0 }}>✓ Paiement enregistré !</p>
+              <p style={{ fontFamily:'Barlow', fontSize:11, color:'#4ade80', margin:'2px 0 0' }}>Commande préparée sous 24h.</p>
+            </div>
+          )}
         </div>
       </div>
-      <div style={{ maxWidth:560, margin:'0 auto 22px', background:'#fffbeb', border:'1px solid #fcd34d', borderRadius:10, padding:'12px 14px', display:'flex', gap:10 }}>
-        <svg width="17" height="17" fill="none" stroke="#d97706" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink:0, marginTop:1 }}><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <p style={{ fontFamily:'Barlow', fontSize:12, color:'#92400e', lineHeight:1.7, margin:0 }}>
-          Mentionnez <strong>impérativement</strong> la référence <strong>{ref}</strong> dans votre virement.
-        </p>
-      </div>
-      <div style={{ textAlign:'center' }}>
+      <div style={{ textAlign:'center', marginTop:24 }}>
         <Link to="/catalogue" className="btn btn-dark" style={{ textDecoration:'none' }}>Retour à la boutique</Link>
       </div>
     </div>
@@ -557,29 +578,13 @@ export default function Panier() {
 
   const confirmerCommande = async () => {
     setLoading(true)
-    const totalSnapshot = total
-    const articlesJson = JSON.parse(JSON.stringify(panier))
-    const payload = {
-      client_nom: nom,
-      client_telephone: telephone,
-      client_adresse: adresse,
-      articles: articlesJson,
-      total: Number(totalSnapshot),
-      statut: 'en_attente',
-      mode_paiement: paiement,
-    }
-    const { data, error } = await supabase
-      .from('commandes')
-      .insert(payload)
-      .select()
-      .single()
-    if (error) {
-      console.error('Supabase INSERT error:', JSON.stringify(error, null, 2))
-      alert(`Erreur (${error.code}): ${error.message}${error.details ? '\nDetails: ' + error.details : ''}${error.hint ? '\nAide: ' + error.hint : ''}`)
-      setLoading(false)
-      return
-    }
-    setTotalConfirme(totalSnapshot)
+    const totalSnapshot = total  // capture avant viderPanier()
+    const { data, error } = await supabase.from('commandes').insert({
+      client_nom: nom, client_telephone: telephone, client_adresse: adresse,
+      articles: panier, total: totalSnapshot, statut: 'en_attente', mode_paiement: paiement,
+    }).select().single()
+    if (error) { alert('Une erreur est survenue. Veuillez réessayer.'); setLoading(false); return }
+    setTotalConfirme(totalSnapshot)  // garder le total avant de vider
     viderPanier()
     setCommande(data || { id: 'WYL' + Date.now() })
     setLoading(false)

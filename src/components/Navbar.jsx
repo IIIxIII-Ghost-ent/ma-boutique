@@ -13,7 +13,6 @@ const ANNOUNCE_ITEMS = [
   '✦ SUPPORT WHATSAPP 7J/7',
 ]
 
-// Logo WYL en style gothique/streetwear
 const WylLogo = () => (
   <Link to="/" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1 }}>
     <span style={{
@@ -37,7 +36,6 @@ const WylLogo = () => (
   </Link>
 )
 
-// Icône burger 3 lignes
 const BurgerIcon = () => (
   <svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <line x1="0" y1="1" x2="22" y2="1" stroke="#111" strokeWidth="2"/>
@@ -87,8 +85,17 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Fermer menu si on change de page
   useEffect(() => { setMenuOpen(false) }, [location.pathname])
+
+  // Bloquer le scroll du body quand le menu est ouvert
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [menuOpen])
 
   const NAV_LINKS = [
     ['/catalogue', 'Catalogue'],
@@ -133,6 +140,7 @@ export default function Navbar() {
       <header style={{
         position: 'sticky',
         top: 0,
+        /* zIndex INFÉRIEUR au drawer (600) mais au-dessus du contenu page */
         zIndex: 200,
         background: scrolled ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,1)',
         backdropFilter: scrolled ? 'blur(12px)' : 'none',
@@ -154,12 +162,18 @@ export default function Navbar() {
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label="Menu"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: -10, color: '#111' }}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                padding: '10px', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', marginLeft: -10, color: '#111',
+                /* Placer le bouton burger au-dessus du drawer overlay */
+                position: 'relative', zIndex: 620,
+              }}
             >
               {menuOpen ? <CloseIcon /> : <BurgerIcon />}
             </button>
 
-            {/* Nav desktop (caché sur mobile) */}
+            {/* Nav desktop */}
             <nav style={{ display: 'flex', gap: 0, marginLeft: 8 }} className="nav-desktop">
               {NAV_LINKS.slice(0, 3).map(([path, label]) => (
                 <Link key={path} to={path}
@@ -185,13 +199,16 @@ export default function Navbar() {
             </nav>
           </div>
 
-          {/* CENTRE : Logo */}
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          {/* CENTRE : Logo — zIndex élevé pour rester visible sur le drawer */}
+          <div style={{ display: 'flex', justifyContent: 'center', position: 'relative', zIndex: 620 }}>
             <WylLogo />
           </div>
 
           {/* DROITE : Search + Panier */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4 }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4,
+            position: 'relative', zIndex: 620,
+          }}>
             <button
               aria-label="Rechercher"
               style={{ background: 'none', border: 'none', cursor: 'pointer', width: 42, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#111', opacity: 0.8, transition: 'opacity 0.2s' }}
@@ -221,91 +238,101 @@ export default function Navbar() {
             </Link>
           </div>
         </div>
+      </header>
 
-        {/* ── DRAWER MENU MOBILE / FULL ── */}
+      {/* ── OVERLAY ── placé AVANT le drawer dans le DOM, même z-index inférieur */}
+      {menuOpen && (
+        <div
+          onClick={() => setMenuOpen(false)}
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.4)',
+            zIndex: 590,
+            backdropFilter: 'blur(2px)',
+          }}
+        />
+      )}
+
+      {/* ── DRAWER MENU ── */}
+      <div style={{
+        position: 'fixed',
+        top: 0, left: 0, bottom: 0,
+        width: '100%',
+        maxWidth: 420,
+        background: 'white',
+        zIndex: 600,
+        transform: menuOpen ? 'translateX(0)' : 'translateX(-100%)',
+        transition: 'transform 0.38s cubic-bezier(0.22,1,0.36,1)',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}>
+        {/* Header drawer — logo + croix */}
         <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'white',
-          zIndex: 500,
-          transform: menuOpen ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 0.38s cubic-bezier(0.22,1,0.36,1)',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 20px', height: 62, borderBottom: '1px solid #e8e5e0', flexShrink: 0,
         }}>
-          {/* Header drawer */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', height: 62, borderBottom: '1px solid #e8e5e0', flexShrink: 0 }}>
-            <WylLogo />
-            <button onClick={() => setMenuOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, color: '#111' }}>
-              <CloseIcon />
-            </button>
-          </div>
+          <WylLogo />
+          <button onClick={() => setMenuOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, color: '#111' }}>
+            <CloseIcon />
+          </button>
+        </div>
 
-          {/* Links */}
-          <nav style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
-            {NAV_LINKS.map(([path, label], i) => (
-              <Link key={path} to={path} onClick={() => setMenuOpen(false)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '18px 28px',
-                  fontFamily: 'Barlow Condensed, sans-serif',
-                  fontSize: 26,
-                  fontWeight: 700,
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                  color: isActive(path) ? '#111' : '#333',
-                  borderBottom: '1px solid #f0eeec',
-                  textDecoration: 'none',
-                  animation: menuOpen ? `slideIn 0.4s ${i * 0.05 + 0.1}s both` : 'none',
-                  opacity: menuOpen ? 1 : 0,
-                }}
-              >
-                {label}
-                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                </svg>
-              </Link>
-            ))}
-            <Link to="/panier" onClick={() => setMenuOpen(false)}
+        {/* Links */}
+        <nav style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
+          {NAV_LINKS.map(([path, label], i) => (
+            <Link key={path} to={path} onClick={() => setMenuOpen(false)}
               style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
                 padding: '18px 28px',
-                fontFamily: 'Barlow Condensed, sans-serif', fontSize: 26, fontWeight: 700,
-                letterSpacing: '0.06em', textTransform: 'uppercase', color: '#333',
-                borderBottom: '1px solid #f0eeec', textDecoration: 'none',
-                animation: menuOpen ? `slideIn 0.4s ${NAV_LINKS.length * 0.05 + 0.1}s both` : 'none',
-                opacity: menuOpen ? 1 : 0,
+                fontFamily: 'Barlow Condensed, sans-serif',
+                fontSize: 26,
+                fontWeight: 700,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                color: isActive(path) ? '#111' : '#333',
+                borderBottom: '1px solid #f0eeec',
+                textDecoration: 'none',
+                animation: menuOpen ? `slideIn 0.4s ${i * 0.05 + 0.1}s both` : 'none',
               }}
             >
-              Mon panier {nbArticles > 0 && <span style={{ background: '#111', color: 'white', borderRadius: 20, fontSize: 12, padding: '2px 9px', fontFamily: 'Barlow', fontWeight: 700 }}>{nbArticles}</span>}
+              {label}
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
               </svg>
             </Link>
-          </nav>
+          ))}
+          <Link to="/panier" onClick={() => setMenuOpen(false)}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '18px 28px',
+              fontFamily: 'Barlow Condensed, sans-serif', fontSize: 26, fontWeight: 700,
+              letterSpacing: '0.06em', textTransform: 'uppercase', color: '#333',
+              borderBottom: '1px solid #f0eeec', textDecoration: 'none',
+              animation: menuOpen ? `slideIn 0.4s ${NAV_LINKS.length * 0.05 + 0.1}s both` : 'none',
+            }}
+          >
+            Mon panier {nbArticles > 0 && (
+              <span style={{ background: '#111', color: 'white', borderRadius: 20, fontSize: 12, padding: '2px 9px', fontFamily: 'Barlow', fontWeight: 700 }}>{nbArticles}</span>
+            )}
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </Link>
+        </nav>
 
-          {/* Footer drawer */}
-          <div style={{ padding: '20px 28px', borderTop: '1px solid #f0eeec', flexShrink: 0 }}>
-            <p style={{ fontFamily: 'Barlow', fontSize: 11, color: '#aaa', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>WYL — Wear Your Legacy · Maroc</p>
-            <a href="https://wa.me/212675014485" target="_blank" rel="noreferrer"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'Barlow', fontSize: 13, fontWeight: 600, color: '#25D366', textDecoration: 'none' }}>
-              <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              WhatsApp Support
-            </a>
-          </div>
+        {/* Footer drawer */}
+        <div style={{ padding: '20px 28px', borderTop: '1px solid #f0eeec', flexShrink: 0 }}>
+          <p style={{ fontFamily: 'Barlow', fontSize: 11, color: '#aaa', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>WYL — Wear Your Legacy · Maroc</p>
+          <a href="https://wa.me/212675014485" target="_blank" rel="noreferrer"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'Barlow', fontSize: 13, fontWeight: 600, color: '#25D366', textDecoration: 'none' }}>
+            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            WhatsApp Support
+          </a>
         </div>
-
-        {/* Overlay */}
-        {menuOpen && (
-          <div onClick={() => setMenuOpen(false)} style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
-            zIndex: 490, backdropFilter: 'blur(2px)',
-          }} />
-        )}
-      </header>
+      </div>
 
       <style>{`
         @keyframes navTick { from { transform: translateX(0); } to { transform: translateX(-50%); } }

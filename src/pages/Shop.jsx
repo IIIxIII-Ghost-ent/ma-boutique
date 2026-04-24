@@ -82,7 +82,6 @@ export default function Shop() {
   const displayBest = bestSellers.length > 0 ? bestSellers : nouveautes.slice(0, 4)
   const displayNew  = nouveautes.slice(0, 4)
 
-  // Hero image — properly imported so Vite hashes them for production
   const heroSrc = isMobile ? heroMobile : heroDesktop
 
   return (
@@ -102,7 +101,6 @@ export default function Shop() {
         alignItems: 'flex-start',
         justifyContent: 'flex-end',
       }}>
-        {/* Hero image with fade-in on load */}
         <div
           ref={heroRef}
           style={{
@@ -129,18 +127,13 @@ export default function Shop() {
           />
         </div>
 
-        {/* Background color while image loads */}
         {!heroImgLoaded && (
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)' }} />
         )}
 
-        {/* Gradient overlay */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.15) 35%, rgba(0,0,0,0.72) 75%, rgba(0,0,0,0.92) 100%)' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0) 50%)' }} />
 
-       
-
-        {/* Hero content */}
         <div style={{
           position: 'relative', zIndex: 10, width: '100%',
           padding: isMobile ? '0 20px 36px' : '0 52px 56px',
@@ -179,11 +172,6 @@ export default function Shop() {
               width: isMobile ? '100%' : 'auto',
               animation: 'heroFadeUp 1s cubic-bezier(0.22,1,0.36,1) 0.25s both',
             }}>
-              
-
-             
-
-             
             </div>
           )}
         </div>
@@ -208,21 +196,40 @@ export default function Shop() {
         }
         .promo-banner { background:#111; display:flex; align-items:center; justify-content:space-between; padding:56px 48px; gap:28px; flex-wrap:wrap; }
         @media(max-width:640px) { .promo-banner { padding:36px 20px; flex-direction:column; align-items:flex-start; } }
+
+        /* Bouton "Voir tout" — fond noir, texte blanc */
+        .btn-voir-tout {
+          font-family: 'Barlow', sans-serif;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          background: #111;
+          border: 1.5px solid #111;
+          color: white;
+          padding: 9px 18px;
+          cursor: pointer;
+          transition: background 0.2s, border-color 0.2s;
+        }
+        .btn-voir-tout:hover {
+          background: #333;
+          border-color: #333;
+        }
       `}</style>
 
       {/* ══ FEATURES BAR ══ */}
-     
-   <section style={{ padding: '60px 0' }}>
+
+      {/* ══ NEW RELEASES ══ */}
+      <section style={{ padding: '60px 0' }}>
         <div style={{ maxWidth: 1320, margin: '0 auto', padding: '0 24px' }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 22, paddingBottom: 14, borderBottom: '1px solid #e8e5e0', flexWrap: 'wrap', gap: 12 }}>
             <div>
               <p style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.32em', textTransform: 'uppercase', color: '#aaa', marginBottom: 2 }}>Arrivages récents</p>
               <h2 style={{ fontFamily: 'Barlow Condensed', fontSize: 'clamp(26px,4vw,40px)', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>New Releases</h2>
             </div>
-            <button onClick={() => navigate('/catalogue')}
-              style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'transparent', border: '1.5px solid #e8e5e0', color: '#111', padding: '9px 18px', cursor: 'pointer', transition: 'border-color 0.2s' }}
-              onMouseOver={e => e.currentTarget.style.borderColor='#111'}
-              onMouseOut={e => e.currentTarget.style.borderColor='#e8e5e0'}
+            <button
+              onClick={() => navigate('/catalogue')}
+              className="btn-voir-tout"
             >Voir tout →</button>
           </div>
 
@@ -257,10 +264,9 @@ export default function Shop() {
               <p style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.32em', textTransform: 'uppercase', color: '#aaa', marginBottom: 2 }}>Incontournables</p>
               <h2 style={{ fontFamily: 'Barlow Condensed', fontSize: 'clamp(26px,4vw,40px)', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>Best Sellers</h2>
             </div>
-            <button onClick={() => navigate('/catalogue')}
-              style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', background: 'transparent', border: '1.5px solid #e8e5e0', color: '#111', padding: '9px 18px', cursor: 'pointer', transition: 'border-color 0.2s' }}
-              onMouseOver={e => e.currentTarget.style.borderColor='#111'}
-              onMouseOut={e => e.currentTarget.style.borderColor='#e8e5e0'}
+            <button
+              onClick={() => navigate('/catalogue')}
+              className="btn-voir-tout"
             >Voir tout →</button>
           </div>
 
@@ -301,14 +307,11 @@ export default function Shop() {
             <p style={{ fontFamily: 'Barlow Condensed', fontSize: 46, fontWeight: 900, color: 'white', lineHeight: 1 }}>100%</p>
             <p style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>Gratuite</p>
           </div>
-          <button onClick={() => navigate('/catalogue')}
-            className="btn btn-white btn-sm"
-          >Commander maintenant →</button>
+          <button onClick={() => navigate('/catalogue')} className="btn btn-white btn-sm">
+            Commander maintenant →
+          </button>
         </div>
       </div>
-
-      {/* ══ NEW RELEASES ══ */}
-   
 
       <FooterComponent />
     </div>
