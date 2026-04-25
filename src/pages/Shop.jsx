@@ -147,16 +147,16 @@ export default function Shop() {
             {loaded && (
               <div style={{ animation: 'heroFadeUp 1s cubic-bezier(0.22,1,0.36,1) 0s both' }}>
                 <p style={{
-                  fontFamily: 'Barlow, sans-serif', fontSize: isMobile ? 12 : 14, fontWeight: 700,
+                  fontFamily: 'Barlow, sans-serif', fontSize: isMobile ? 10 : 11, fontWeight: 700,
                   letterSpacing: '0.4em', textTransform: 'uppercase', color: 'white',
                   marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12
                 }}>
-                  <span style={{ width: 30, height: 1, background: '#b76448' }}></span>
+                  <span style={{ width: 20, height: 1, background: '#b76448' }}></span>
                   Collection 2026
                 </p>
                 <h1 style={{
                   fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900,
-                  fontSize: isMobile ? 'clamp(48px, 15vw, 72px)' : 'clamp(64px, 8vw, 110px)',
+                  fontSize: isMobile ? 'clamp(30px, 10vw, 40px)' : 'clamp(42px, 5vw, 68px)',
                   letterSpacing: '-0.02em', textTransform: 'uppercase', color: 'white',
                   lineHeight: 0.9, marginBottom: 24,
                 }}>
@@ -183,7 +183,6 @@ export default function Shop() {
               width: isMobile ? '100%' : 'auto',
               animation: 'heroFadeUp 1s cubic-bezier(0.22,1,0.36,1) 0.25s both',
             }}>
-              {/* Optionnel : vous pouvez remettre ici des éléments à droite si besoin */}
             </div>
           )}
         </div>
