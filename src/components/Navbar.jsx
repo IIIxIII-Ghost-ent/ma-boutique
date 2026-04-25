@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react'
 
 const ANNOUNCE_ITEMS = [
   '🇲🇦 LIVRAISON OFFERTE PARTOUT AU MAROC',
-  '✦ NOUVELLE COLLECTION SS 2026',
+  '✦ WORLDWIDE SHIPPING',
   '✦ PAIEMENT À LA LIVRAISON DISPONIBLE',
   '✦ SUPPORT WHATSAPP 7J/7',
   '🇲🇦 LIVRAISON OFFERTE PARTOUT AU MAROC',
-  '✦ NOUVELLE COLLECTION SS 2026',
+  '✦ WORLDWIDE SHIPPING',
   '✦ PAIEMENT À LA LIVRAISON DISPONIBLE',
   '✦ SUPPORT WHATSAPP 7J/7',
 ]
@@ -32,7 +32,7 @@ const WylLogo = () => (
       textTransform: 'uppercase',
       color: '#888',
       marginTop: 2,
-    }}>Wear Your Legacy</span>
+    }}> Build to stand out</span>
   </Link>
 )
 

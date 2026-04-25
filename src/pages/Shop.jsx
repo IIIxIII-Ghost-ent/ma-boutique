@@ -145,22 +145,33 @@ export default function Shop() {
         }}>
           <div style={{ flex: 1 }}>
             {loaded && (
-              <p style={{
-                fontFamily: 'Barlow, sans-serif', fontSize: isMobile ? 10 : 11, fontWeight: 600,
-                letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)',
-                marginBottom: 10, animation: 'heroFadeUp 1s cubic-bezier(0.22,1,0.36,1) 0s both',
-              }}>
-              </p>
-            )}
-            {loaded && (
-              <h1 style={{
-                fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900,
-                fontSize: isMobile ? 'clamp(64px, 20vw, 96px)' : 'clamp(76px, 11vw, 144px)',
-                letterSpacing: '0.03em', textTransform: 'uppercase', color: 'white',
-                lineHeight: 0.88, marginBottom: 0,
-                animation: 'heroFadeUp 1s cubic-bezier(0.22,1,0.36,1) 0.1s both',
-              }}>
-              </h1>
+              <div style={{ animation: 'heroFadeUp 1s cubic-bezier(0.22,1,0.36,1) 0s both' }}>
+                <p style={{
+                  fontFamily: 'Barlow, sans-serif', fontSize: isMobile ? 12 : 14, fontWeight: 700,
+                  letterSpacing: '0.4em', textTransform: 'uppercase', color: 'white',
+                  marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12
+                }}>
+                  <span style={{ width: 30, height: 1, background: '#b76448' }}></span>
+                  Collection 2026
+                </p>
+                <h1 style={{
+                  fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 900,
+                  fontSize: isMobile ? 'clamp(48px, 15vw, 72px)' : 'clamp(64px, 8vw, 110px)',
+                  letterSpacing: '-0.02em', textTransform: 'uppercase', color: 'white',
+                  lineHeight: 0.9, marginBottom: 24,
+                }}>
+                  SS COLLECTION <br />
+                  <span style={{ color: 'transparent', WebkitTextStroke: '1px rgba(255,255,255,0.6)' }}>LIMITED EDITION</span>
+                </h1>
+                
+                <button 
+                  onClick={() => navigate('/catalogue')}
+                  className="hero-shop-btn"
+                >
+                  Shop Now
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+              </div>
             )}
           </div>
 
@@ -172,6 +183,7 @@ export default function Shop() {
               width: isMobile ? '100%' : 'auto',
               animation: 'heroFadeUp 1s cubic-bezier(0.22,1,0.36,1) 0.25s both',
             }}>
+              {/* Optionnel : vous pouvez remettre ici des éléments à droite si besoin */}
             </div>
           )}
         </div>
@@ -179,25 +191,38 @@ export default function Shop() {
 
       <style>{`
         @keyframes heroFadeUp { from { opacity:0; transform:translateY(32px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes heroFadeRight { from { opacity:0; transform:translateX(-20px); } to { opacity:1; transform:translateX(0); } }
         @keyframes shimmer { 0%{background-position:-600px 0} 100%{background-position:600px 0} }
+        
+        .hero-shop-btn {
+          all: unset;
+          display: inline-flex;
+          align-items: center;
+          gap: 12px;
+          background: white;
+          color: #111;
+          padding: 14px 32px;
+          font-family: 'Barlow', sans-serif;
+          font-size: 13px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          border: 1px solid white;
+        }
+
+        .hero-shop-btn:hover {
+          background: transparent;
+          color: white;
+          transform: translateY(-3px);
+          box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
         .shimmer { background:linear-gradient(90deg,#f0edea 25%,#e5e0db 50%,#f0edea 75%); background-size:600px 100%; animation:shimmer 1.4s ease-in-out infinite; }
         .shop-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; }
         @media(max-width:1100px) { .shop-grid { grid-template-columns:repeat(3,1fr); } }
         @media(max-width:700px)  { .shop-grid { grid-template-columns:repeat(2,1fr); } }
-        .feat-bar { display:flex; border-bottom:1px solid #e8e5e0; }
-        .feat-item { flex:1; padding:22px 14px; text-align:center; border-right:1px solid #e8e5e0; }
-        .feat-item:last-child { border-right:none; }
-        @media(max-width:600px) {
-          .feat-bar { display:grid; grid-template-columns:1fr 1fr; }
-          .feat-item { border-right:1px solid #e8e5e0; border-bottom:1px solid #e8e5e0; }
-          .feat-item:nth-child(2n) { border-right:none; }
-          .feat-item:nth-last-child(-n+2) { border-bottom:none; }
-        }
-        .promo-banner { background:#111; display:flex; align-items:center; justify-content:space-between; padding:56px 48px; gap:28px; flex-wrap:wrap; }
-        @media(max-width:640px) { .promo-banner { padding:36px 20px; flex-direction:column; align-items:flex-start; } }
-
-        /* Bouton "Voir tout" — fond noir, texte blanc */
+        
         .btn-voir-tout {
           font-family: 'Barlow', sans-serif;
           font-size: 10px;
@@ -215,9 +240,10 @@ export default function Shop() {
           background: #333;
           border-color: #333;
         }
-      `}</style>
 
-      {/* ══ FEATURES BAR ══ */}
+        .promo-banner { background:#111; display:flex; align-items:center; justify-content:space-between; padding:56px 48px; gap:28px; flex-wrap:wrap; }
+        @media(max-width:640px) { .promo-banner { padding:36px 20px; flex-direction:column; align-items:flex-start; } }
+      `}</style>
 
       {/* ══ NEW RELEASES ══ */}
       <section style={{ padding: '60px 0' }}>
@@ -227,10 +253,7 @@ export default function Shop() {
               <p style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.32em', textTransform: 'uppercase', color: '#aaa', marginBottom: 2 }}>Arrivages récents</p>
               <h2 style={{ fontFamily: 'Barlow Condensed', fontSize: 'clamp(26px,4vw,40px)', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>New Releases</h2>
             </div>
-            <button
-              onClick={() => navigate('/catalogue')}
-              className="btn-voir-tout"
-            >Voir tout →</button>
+            <button onClick={() => navigate('/catalogue')} className="btn-voir-tout">Voir tout →</button>
           </div>
 
           {loading ? (
@@ -264,10 +287,7 @@ export default function Shop() {
               <p style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.32em', textTransform: 'uppercase', color: '#aaa', marginBottom: 2 }}>Incontournables</p>
               <h2 style={{ fontFamily: 'Barlow Condensed', fontSize: 'clamp(26px,4vw,40px)', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>Best Sellers</h2>
             </div>
-            <button
-              onClick={() => navigate('/catalogue')}
-              className="btn-voir-tout"
-            >Voir tout →</button>
+            <button onClick={() => navigate('/catalogue')} className="btn-voir-tout">Voir tout →</button>
           </div>
 
           {loading ? (
@@ -307,7 +327,7 @@ export default function Shop() {
             <p style={{ fontFamily: 'Barlow Condensed', fontSize: 46, fontWeight: 900, color: 'white', lineHeight: 1 }}>100%</p>
             <p style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>Gratuite</p>
           </div>
-          <button onClick={() => navigate('/catalogue')} className="btn btn-white btn-sm">
+          <button onClick={() => navigate('/catalogue')} style={{ background: 'white', color: '#111', border: 'none', padding: '12px 24px', fontWeight: 700, cursor: 'pointer' }}>
             Commander maintenant →
           </button>
         </div>
