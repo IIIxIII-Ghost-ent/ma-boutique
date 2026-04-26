@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import ProduitCard from '../components/ProduitCard'
 
@@ -23,6 +23,8 @@ export default function Catalogue() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
 
   const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const searchQuery = searchParams.get('q') || ''
 
   useEffect(() => {
     if (!location.hash || loading) return
@@ -49,7 +51,11 @@ export default function Catalogue() {
     })
   }, [])
 
-  let produitsFiltres = filtre === 'Tout' ? produits : produits.filter(p => p.categorie === filtre)
+  let produitsFiltres = produits.filter(p => {
+    const matchCat = filtre === 'Tout' || p.categorie === filtre
+    const matchQ = !searchQuery || p.nom?.toLowerCase().includes(searchQuery.toLowerCase()) || p.categorie?.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchCat && matchQ
+  })
   if (sortBy === 'price-asc') produitsFiltres = [...produitsFiltres].sort((a, b) => a.prix - b.prix)
   if (sortBy === 'price-desc') produitsFiltres = [...produitsFiltres].sort((a, b) => b.prix - a.prix)
   if (sortBy === 'recent') produitsFiltres = [...produitsFiltres].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -111,15 +117,19 @@ export default function Catalogue() {
       <div style={{ background: '#111', padding: '48px 24px 40px', borderBottom: '1px solid #2a2a2a' }}>
         <div style={{ maxWidth: 1320, margin: '0 auto' }}>
           <p style={{ fontFamily: 'Barlow, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>WYL</p>
-          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 'clamp(40px, 7vw, 80px)', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'white', lineHeight: 0.9, marginBottom: 12 }}>Catalogue</h1>
-          <p style={{ fontFamily: 'Barlow, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>Pièces essentielles, qualité premium. Chaque article est conçu pour durer.</p>
+          <h1 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 'clamp(40px, 7vw, 80px)', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'white', lineHeight: 0.9, marginBottom: 12 }}>
+            {searchQuery ? `"${searchQuery}"` : 'Catalogue'}
+          </h1>
+          <p style={{ fontFamily: 'Barlow, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>
+            {searchQuery ? `Résultats de recherche pour "${searchQuery}"` : 'Pièces essentielles, qualité premium. Chaque article est conçu pour durer.'}
+          </p>
         </div>
       </div>
 
       <div style={{ maxWidth: 1320, margin: '0 auto', padding: '0 24px' }}>
 
-        {/* ── NOUVEAUTÉS ── */}
-        {!loading && nouveautes.length > 0 && (
+        {/* ── NOUVEAUTÉS — masquées si recherche active ── */}
+        {!loading && nouveautes.length > 0 && !searchQuery && (
           <section id="nouveautes" style={{ padding: '40px 0' }}>
             <div style={sectionHeaderStyle}>
               <div>
@@ -130,8 +140,8 @@ export default function Catalogue() {
           </section>
         )}
 
-        {/* ── BEST SELLERS ── */}
-        {!loading && vedettes.length > 0 && (
+        {/* ── BEST SELLERS — masqués si recherche active ── */}
+        {!loading && vedettes.length > 0 && !searchQuery && (
           <section id="best-sellers" style={{ padding: '40px 0' }}>
             <div style={sectionHeaderStyle}>
               <div>
@@ -143,12 +153,12 @@ export default function Catalogue() {
         )}
 
         {/* ── TOUS LES PRODUITS ── */}
-        <section id="catalogue-complet" style={{ paddingBottom: 80 }}>
+        <section id="catalogue-complet" style={{ paddingBottom: 80, paddingTop: searchQuery ? 40 : 0 }}>
           <div style={sectionHeaderStyle}>
             <div>
               <p style={{ fontFamily: 'Barlow, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#888', marginBottom: 2 }}>Catalogue complet</p>
               <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>
-                Shop All {!loading && <span style={{ fontSize: '0.55em', fontWeight: 600, color: '#888', marginLeft: 8 }}>{produitsFiltres.length} articles</span>}
+                {searchQuery ? `Résultats : "${searchQuery}"` : 'Shop All'}{!loading && <span style={{ fontSize: '0.55em', fontWeight: 600, color: '#888', marginLeft: 8 }}>{produitsFiltres.length} articles</span>}
               </h2>
             </div>
 
@@ -173,7 +183,9 @@ export default function Catalogue() {
 
           {loading ? <SkeletonGrid /> : produitsFiltres.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '80px 0' }}>
-              <p style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, fontWeight: 700, textTransform: 'uppercase', color: '#888', letterSpacing: '0.08em' }}>Aucun produit dans cette catégorie</p>
+              <p style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 20, fontWeight: 700, textTransform: 'uppercase', color: '#888', letterSpacing: '0.08em' }}>
+                {searchQuery ? `Aucun résultat pour "${searchQuery}"` : 'Aucun produit dans cette catégorie'}
+              </p>
             </div>
           ) : renderGrid(produitsFiltres)}
         </section>

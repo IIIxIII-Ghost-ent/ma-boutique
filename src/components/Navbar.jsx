@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { usePanier } from '../context/PanierContext'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const ANNOUNCE_ITEMS = [
   '🇲🇦 LIVRAISON OFFERTE PARTOUT AU MAROC',
@@ -32,7 +32,7 @@ const WylLogo = () => (
       textTransform: 'uppercase',
       color: '#888',
       marginTop: 2,
-    }}> Build to stand out</span>
+    }}> Build to stand out</span>
   </Link>
 )
 
@@ -72,7 +72,10 @@ export default function Navbar() {
   const navigate = useNavigate()
   const nbArticles = panier.reduce((a, p) => a + p.quantite, 0)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const [scrolled, setScrolled] = useState(false)
+  const searchInputRef = useRef(null)
 
   const isActive = (path) => {
     if (path === '/catalogue') return location.pathname.startsWith('/catalogue') || location.pathname.startsWith('/produit')
@@ -87,7 +90,6 @@ export default function Navbar() {
 
   useEffect(() => { setMenuOpen(false) }, [location.pathname])
 
-  // Bloquer le scroll du body quand le menu est ouvert
   useEffect(() => {
     if (menuOpen) {
       document.body.style.overflow = 'hidden'
@@ -96,6 +98,35 @@ export default function Navbar() {
     }
     return () => { document.body.style.overflow = '' }
   }, [menuOpen])
+
+  // Focus automatique sur l'input quand la recherche s'ouvre
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      setTimeout(() => searchInputRef.current?.focus(), 50)
+    }
+    if (searchOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      setSearchQuery('')
+      if (!menuOpen) document.body.style.overflow = ''
+    }
+  }, [searchOpen])
+
+  // Fermer la recherche avec Escape
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') setSearchOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+    if (!searchQuery.trim()) return
+    setSearchOpen(false)
+    navigate(`/catalogue?q=${encodeURIComponent(searchQuery.trim())}`)
+  }
 
   const NAV_LINKS = [
     ['/catalogue', 'Catalogue'],
@@ -140,7 +171,6 @@ export default function Navbar() {
       <header style={{
         position: 'sticky',
         top: 0,
-        /* zIndex INFÉRIEUR au drawer (600) mais au-dessus du contenu page */
         zIndex: 200,
         background: scrolled ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,1)',
         backdropFilter: scrolled ? 'blur(12px)' : 'none',
@@ -166,7 +196,6 @@ export default function Navbar() {
                 background: 'none', border: 'none', cursor: 'pointer',
                 padding: '10px', display: 'flex', alignItems: 'center',
                 justifyContent: 'center', marginLeft: -10, color: '#111',
-                /* Placer le bouton burger au-dessus du drawer overlay */
                 position: 'relative', zIndex: 620,
               }}
             >
@@ -199,7 +228,7 @@ export default function Navbar() {
             </nav>
           </div>
 
-          {/* CENTRE : Logo — zIndex élevé pour rester visible sur le drawer */}
+          {/* CENTRE : Logo */}
           <div style={{ display: 'flex', justifyContent: 'center', position: 'relative', zIndex: 620 }}>
             <WylLogo />
           </div>
@@ -211,6 +240,7 @@ export default function Navbar() {
           }}>
             <button
               aria-label="Rechercher"
+              onClick={() => setSearchOpen(true)}
               style={{ background: 'none', border: 'none', cursor: 'pointer', width: 42, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#111', opacity: 0.8, transition: 'opacity 0.2s' }}
               onMouseOver={e => e.currentTarget.style.opacity = '1'}
               onMouseOut={e => e.currentTarget.style.opacity = '0.8'}
@@ -240,7 +270,117 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* ── OVERLAY ── placé AVANT le drawer dans le DOM, même z-index inférieur */}
+      {/* ── SEARCH OVERLAY ── */}
+      {searchOpen && (
+        <div
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 700,
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            paddingTop: '15vh',
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget) setSearchOpen(false) }}
+        >
+          <div style={{
+            width: '100%',
+            maxWidth: 680,
+            padding: '0 24px',
+            animation: 'searchFadeDown 0.25s cubic-bezier(0.22,1,0.36,1) both',
+          }}>
+            <p style={{
+              fontFamily: 'Barlow, sans-serif',
+              fontSize: 10, fontWeight: 700,
+              letterSpacing: '0.3em', textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.5)',
+              marginBottom: 16,
+            }}>Rechercher un produit</p>
+
+            <form onSubmit={handleSearch} style={{ position: 'relative' }}>
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Ex : hoodie, t-shirt noir..."
+                style={{
+                  width: '100%',
+                  background: 'white',
+                  border: 'none',
+                  outline: 'none',
+                  fontFamily: 'Barlow Condensed, sans-serif',
+                  fontSize: 'clamp(22px, 4vw, 32px)',
+                  fontWeight: 700,
+                  letterSpacing: '0.02em',
+                  textTransform: 'uppercase',
+                  color: '#111',
+                  padding: '20px 64px 20px 24px',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <button
+                type="submit"
+                style={{
+                  position: 'absolute', right: 0, top: 0, bottom: 0,
+                  width: 60,
+                  background: '#111',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'white',
+                }}
+              >
+                <SearchIcon />
+              </button>
+            </form>
+
+            <div style={{ marginTop: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {['Hoodies', 'T-Shirts', 'Pantalons'].map(tag => (
+                <button
+                  key={tag}
+                  onClick={() => {
+                    setSearchOpen(false)
+                    navigate(`/catalogue?q=${tag.toLowerCase()}`)
+                  }}
+                  style={{
+                    background: 'rgba(255,255,255,0.12)',
+                    border: '1px solid rgba(255,255,255,0.25)',
+                    color: 'white',
+                    fontFamily: 'Barlow, sans-serif',
+                    fontSize: 11, fontWeight: 700,
+                    letterSpacing: '0.1em', textTransform: 'uppercase',
+                    padding: '7px 14px',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s',
+                  }}
+                  onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.22)'}
+                  onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+                >{tag}</button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setSearchOpen(false)}
+              style={{
+                marginTop: 24,
+                background: 'none', border: 'none',
+                color: 'rgba(255,255,255,0.5)',
+                fontFamily: 'Barlow, sans-serif',
+                fontSize: 11, fontWeight: 700,
+                letterSpacing: '0.2em', textTransform: 'uppercase',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+              }}
+            >
+              <CloseIcon /> Fermer
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── OVERLAY MENU ── */}
       {menuOpen && (
         <div
           onClick={() => setMenuOpen(false)}
@@ -267,7 +407,6 @@ export default function Navbar() {
         flexDirection: 'column',
         overflow: 'hidden',
       }}>
-        {/* Header drawer — logo + croix */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '0 20px', height: 62, borderBottom: '1px solid #e8e5e0', flexShrink: 0,
@@ -278,7 +417,6 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Links */}
         <nav style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
           {NAV_LINKS.map(([path, label], i) => (
             <Link key={path} to={path} onClick={() => setMenuOpen(false)}
@@ -323,7 +461,6 @@ export default function Navbar() {
           </Link>
         </nav>
 
-        {/* Footer drawer */}
         <div style={{ padding: '20px 28px', borderTop: '1px solid #f0eeec', flexShrink: 0 }}>
           <p style={{ fontFamily: 'Barlow', fontSize: 11, color: '#aaa', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>WYL — Wear Your Legacy · Maroc</p>
           <a href="https://wa.me/212675014485" target="_blank" rel="noreferrer"
@@ -337,6 +474,7 @@ export default function Navbar() {
       <style>{`
         @keyframes navTick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
         @keyframes slideIn { from { opacity:0; transform:translateX(-20px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes searchFadeDown { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
         .nav-desktop { display: flex; }
         @media (max-width: 640px) { .nav-desktop { display: none !important; } }
       `}</style>
