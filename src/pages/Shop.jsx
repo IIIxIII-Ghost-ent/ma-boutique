@@ -84,6 +84,20 @@ export default function Shop() {
 
   const heroSrc = isMobile ? heroMobile : heroDesktop
 
+  // Style commun pour les "cages" de titres
+  const sectionHeaderStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 25,
+    padding: isMobile ? '16px 20px' : '20px 32px',
+    background: '#f8f8f8', // Couleur subtile pour identifier la cage
+    border: '1px solid #eeeeee',
+    borderRadius: '4px',
+    flexWrap: 'wrap',
+    gap: 12
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: 'white' }}>
       <Navbar />
@@ -174,17 +188,6 @@ export default function Shop() {
               </div>
             )}
           </div>
-
-          {loaded && (
-            <div style={{
-              display: 'flex', flexDirection: 'column', gap: 10,
-              alignItems: isMobile ? 'flex-start' : 'flex-end',
-              minWidth: isMobile ? 'auto' : 220,
-              width: isMobile ? '100%' : 'auto',
-              animation: 'heroFadeUp 1s cubic-bezier(0.22,1,0.36,1) 0.25s both',
-            }}>
-            </div>
-          )}
         </div>
       </section>
 
@@ -218,7 +221,7 @@ export default function Shop() {
         }
 
         .shimmer { background:linear-gradient(90deg,#f0edea 25%,#e5e0db 50%,#f0edea 75%); background-size:600px 100%; animation:shimmer 1.4s ease-in-out infinite; }
-        .shop-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; }
+        .shop-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:30px; }
         @media(max-width:1100px) { .shop-grid { grid-template-columns:repeat(3,1fr); } }
         @media(max-width:700px)  { .shop-grid { grid-template-columns:repeat(2,1fr); } }
         
@@ -245,14 +248,13 @@ export default function Shop() {
       `}</style>
 
       {/* ══ NEW RELEASES ══ */}
-      <section style={{ padding: '60px 0' }}>
+      <section style={{ padding: '30px 0' }}> {/* Réduction du padding pour coller les sections */}
         <div style={{ maxWidth: 1320, margin: '0 auto', padding: '0 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 22, paddingBottom: 14, borderBottom: '1px solid #e8e5e0', flexWrap: 'wrap', gap: 12 }}>
+          <div style={sectionHeaderStyle}>
             <div>
-              <p style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.32em', textTransform: 'uppercase', color: '#aaa', marginBottom: 2 }}>Arrivages récents</p>
-              <h2 style={{ fontFamily: 'Barlow Condensed', fontSize: 'clamp(26px,4vw,40px)', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>New Releases</h2>
+              <h2 style={{ fontFamily: 'Barlow Condensed', fontSize: 'clamp(24px,3.5vw,48px)', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>New Releases</h2>
             </div>
-            <button onClick={() => navigate('/catalogue')} className="btn-voir-tout">Voir tout →</button>
+            <button onClick={() => navigate('/catalogue')} className="btn-voir-tout">Get Access →</button>
           </div>
 
           {loading ? (
@@ -279,14 +281,13 @@ export default function Shop() {
       </section>
 
       {/* ══ BEST SELLERS ══ */}
-      <section id="best-sellers" style={{ padding: '60px 0' }}>
+      <section id="best-sellers" style={{ padding: '30px 0' }}> {/* Réduction du padding */}
         <div style={{ maxWidth: 1320, margin: '0 auto', padding: '0 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 22, paddingBottom: 14, borderBottom: '1px solid #e8e5e0', flexWrap: 'wrap', gap: 12 }}>
+          <div style={sectionHeaderStyle}>
             <div>
-              <p style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.32em', textTransform: 'uppercase', color: '#aaa', marginBottom: 2 }}>Incontournables</p>
-              <h2 style={{ fontFamily: 'Barlow Condensed', fontSize: 'clamp(26px,4vw,40px)', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>Best Sellers</h2>
+              <h2 style={{ fontFamily: 'Barlow Condensed', fontSize: 'clamp(24px,3.5vw,48px)', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>Best Sellers</h2>
             </div>
-            <button onClick={() => navigate('/catalogue')} className="btn-voir-tout">Voir tout →</button>
+            <button onClick={() => navigate('/catalogue')} className="btn-voir-tout">view all →</button>
           </div>
 
           {loading ? (
@@ -313,7 +314,7 @@ export default function Shop() {
       </section>
 
       {/* ══ PROMO BANNER ══ */}
-      <div className="promo-banner">
+      <div className="promo-banner" style={{ marginTop: 20 }}>
         <div>
           <p style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 10 }}>Offre permanente</p>
           <h3 style={{ fontFamily: 'Barlow Condensed', fontSize: 'clamp(28px,5vw,54px)', fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'white', lineHeight: 1, marginBottom: 10 }}>
