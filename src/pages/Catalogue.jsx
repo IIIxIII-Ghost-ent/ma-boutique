@@ -61,7 +61,7 @@ export default function Catalogue() {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 24, // Augmenté légèrement
+    marginBottom: 24,
     padding: isMobile ? '16px 20px' : '20px 32px',
     background: '#f8f8f8',
     border: '1px solid #eeeeee',
@@ -71,7 +71,7 @@ export default function Catalogue() {
   }
 
   const renderGrid = (liste) => (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
+    <div className="shop-grid">
       {liste.map((p, i) => {
         const imgs = parseImages(p)
         return <ProduitCard key={p.id} produit={{ ...p, image_url: imgs[0] || p.image_url }} index={i} />
@@ -80,8 +80,8 @@ export default function Catalogue() {
   )
 
   const SkeletonGrid = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
-      {[1,2,3,4,5,6,8].map(i => (
+    <div className="shop-grid">
+      {[1,2,3,4,5,6,7,8].map(i => (
         <div key={i}>
           <div className="shimmer" style={{ aspectRatio: '3/4' }} />
           <div style={{ padding: '14px 12px', background: 'white' }}>
@@ -102,6 +102,9 @@ export default function Catalogue() {
         @keyframes shimmer { 0%{background-position:-600px 0} 100%{background-position:600px 0} }
         .filter-chip { all:unset; font-family:'Barlow',sans-serif; font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:8px 16px; border:1px solid #eee; cursor:pointer; transition:0.2s; white-space:nowrap; }
         .filter-chip.active { background:#111; color:white; border-color:#111; }
+        .shop-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:30px; }
+        @media(max-width:1100px) { .shop-grid { grid-template-columns:repeat(3,1fr); } }
+        @media(max-width:700px)  { .shop-grid { grid-template-columns:repeat(2,1fr); } }
       `}</style>
 
       {/* ── Page header ── */}
@@ -127,7 +130,6 @@ export default function Catalogue() {
           </section>
         )}
 
-
         {/* ── BEST SELLERS ── */}
         {!loading && vedettes.length > 0 && (
           <section id="best-sellers" style={{ padding: '40px 0' }}>
@@ -139,7 +141,6 @@ export default function Catalogue() {
             {renderGrid(vedettes.slice(0, 4))}
           </section>
         )}
-
 
         {/* ── TOUS LES PRODUITS ── */}
         <section id="catalogue-complet" style={{ paddingBottom: 80 }}>
