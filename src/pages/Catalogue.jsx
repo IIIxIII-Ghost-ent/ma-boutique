@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import ProduitCard from '../components/ProduitCard'
 
@@ -19,6 +20,23 @@ export default function Catalogue() {
   const [filtre, setFiltre] = useState('Tout')
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState('recent')
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+
+  const location = useLocation()
+
+  useEffect(() => {
+    if (!location.hash || loading) return
+    const el = document.getElementById(location.hash.replace('#', ''))
+    if (el) {
+      setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
+    }
+  }, [location.hash, loading])
+
+  useEffect(() => {
+    const resize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', resize)
+    return () => window.removeEventListener('resize', resize)
+  }, [])
 
   useEffect(() => {
     supabase.from('produits').select('*').order('created_at', { ascending: false }).then(({ data }) => {
@@ -39,8 +57,21 @@ export default function Catalogue() {
   const vedettes = produits.filter(p => p.vedette === true && p.stock > 0)
   const nouveautes = [...produits].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 4)
 
+  const sectionHeaderStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 24, // Augmenté légèrement
+    padding: isMobile ? '16px 20px' : '20px 32px',
+    background: '#f8f8f8',
+    border: '1px solid #eeeeee',
+    borderRadius: '4px',
+    flexWrap: 'wrap',
+    gap: 12
+  }
+
   const renderGrid = (liste) => (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 2 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
       {liste.map((p, i) => {
         const imgs = parseImages(p)
         return <ProduitCard key={p.id} produit={{ ...p, image_url: imgs[0] || p.image_url }} index={i} />
@@ -49,7 +80,7 @@ export default function Catalogue() {
   )
 
   const SkeletonGrid = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 2 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
       {[1,2,3,4,5,6,8].map(i => (
         <div key={i}>
           <div className="shimmer" style={{ aspectRatio: '3/4' }} />
@@ -66,6 +97,13 @@ export default function Catalogue() {
   return (
     <div style={{ minHeight: '100vh', background: 'white' }}>
 
+      <style>{`
+        .shimmer { background:linear-gradient(90deg,#f0edea 25%,#e5e0db 50%,#f0edea 75%); background-size:600px 100%; animation:shimmer 1.4s ease-in-out infinite; }
+        @keyframes shimmer { 0%{background-position:-600px 0} 100%{background-position:600px 0} }
+        .filter-chip { all:unset; font-family:'Barlow',sans-serif; font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:8px 16px; border:1px solid #eee; cursor:pointer; transition:0.2s; white-space:nowrap; }
+        .filter-chip.active { background:#111; color:white; border-color:#111; }
+      `}</style>
+
       {/* ── Page header ── */}
       <div style={{ background: '#111', padding: '48px 24px 40px', borderBottom: '1px solid #2a2a2a' }}>
         <div style={{ maxWidth: 1320, margin: '0 auto' }}>
@@ -77,58 +115,42 @@ export default function Catalogue() {
 
       <div style={{ maxWidth: 1320, margin: '0 auto', padding: '0 24px' }}>
 
-        {/* ── BEST SELLERS ── */}
-        {!loading && vedettes.length > 0 && (
-          <section style={{ padding: '56px 0 40px' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 20, paddingBottom: 14, borderBottom: '1px solid #e8e5e0', flexWrap: 'wrap', gap: 12 }}>
-              <div>
-                <p style={{ fontFamily: 'Barlow', fontSize: 10, fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#888', marginBottom: 2 }}>Incontournables</p>
-                <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 'clamp(24px, 3vw, 34px)', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>Best Sellers</h2>
-              </div>
-            </div>
-            {renderGrid(vedettes.slice(0, 4))}
-          </section>
-        )}
-
         {/* ── NOUVEAUTÉS ── */}
         {!loading && nouveautes.length > 0 && (
-          <section style={{ padding: '40px 0' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 20, paddingBottom: 14, borderBottom: '1px solid #e8e5e0', flexWrap: 'wrap', gap: 12 }}>
+          <section id="nouveautes" style={{ padding: '40px 0' }}>
+            <div style={sectionHeaderStyle}>
               <div>
-                <p style={{ fontFamily: 'Barlow, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#888', marginBottom: 2 }}>Arrivages</p>
-                <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 'clamp(24px, 3vw, 34px)', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>New Releases</h2>
+                <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>New Releases</h2>
               </div>
             </div>
             {renderGrid(nouveautes)}
           </section>
         )}
 
-        {/* ── PROMO BANNER ── */}
-        {!loading && (
-          <div style={{ background: '#111', padding: '40px 48px', margin: '8px 0 48px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
-            <div>
-              <p style={{ fontFamily: 'Barlow, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Offre permanente</p>
-              <h3 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'white', lineHeight: 1, marginBottom: 6 }}>Livraison offerte au Maroc</h3>
-              <p style={{ fontFamily: 'Barlow, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>Sur toutes vos commandes — sans minimum.</p>
+
+        {/* ── BEST SELLERS ── */}
+        {!loading && vedettes.length > 0 && (
+          <section id="best-sellers" style={{ padding: '40px 0' }}>
+            <div style={sectionHeaderStyle}>
+              <div>
+                <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>Best Sellers</h2>
+              </div>
             </div>
-            <div style={{ background: '#b76448', padding: '16px 28px', textAlign: 'center' }}>
-              <p style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 38, fontWeight: 900, color: 'white', lineHeight: 1 }}>100%</p>
-              <p style={{ fontFamily: 'Barlow, sans-serif', fontSize: 9, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>Gratuite</p>
-            </div>
-          </div>
+            {renderGrid(vedettes.slice(0, 4))}
+          </section>
         )}
+
 
         {/* ── TOUS LES PRODUITS ── */}
         <section id="catalogue-complet" style={{ paddingBottom: 80 }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 20, paddingBottom: 14, borderBottom: '1px solid #e8e5e0', flexWrap: 'wrap', gap: 12 }}>
+          <div style={sectionHeaderStyle}>
             <div>
               <p style={{ fontFamily: 'Barlow, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#888', marginBottom: 2 }}>Catalogue complet</p>
-              <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 'clamp(24px, 3vw, 34px)', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>
+              <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>
                 Shop All {!loading && <span style={{ fontSize: '0.55em', fontWeight: 600, color: '#888', marginLeft: 8 }}>{produitsFiltres.length} articles</span>}
               </h2>
             </div>
 
-            {/* Sort */}
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value)}
@@ -140,7 +162,6 @@ export default function Catalogue() {
             </select>
           </div>
 
-          {/* Filter bar */}
           <div className="filter-bar" style={{ marginBottom: 28, display: 'flex', gap: 2, overflowX: 'auto', paddingBottom: 2, scrollbarWidth: 'none' }}>
             {categories.map(cat => (
               <button key={cat} onClick={() => setFiltre(cat)}
@@ -156,29 +177,20 @@ export default function Catalogue() {
           ) : renderGrid(produitsFiltres)}
         </section>
 
-        {/* ── Pourquoi WYL ── */}
-        <section style={{ paddingBottom: 80 }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 32, paddingBottom: 14, borderBottom: '1px solid #e8e5e0' }}>
+        {/* ── PROMO BANNER ── */}
+        {!loading && (
+          <div style={{ background: '#111', padding: '40px 48px', margin: '40px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
             <div>
-              <p style={{ fontFamily: 'Barlow, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#888', marginBottom: 2 }}>Notre engagement</p>
-              <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 'clamp(24px, 3vw, 34px)', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>Pourquoi WYL ?</h2>
+              <p style={{ fontFamily: 'Barlow, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Offre permanente</p>
+              <h3 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'white', lineHeight: 1, marginBottom: 6 }}>Livraison offerte au Maroc</h3>
+              <p style={{ fontFamily: 'Barlow, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>Sur toutes vos commandes — sans minimum.</p>
+            </div>
+            <div style={{ background: '#b76448', padding: '16px 28px', textAlign: 'center' }}>
+              <p style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 38, fontWeight: 900, color: 'white', lineHeight: 1 }}>100%</p>
+              <p style={{ fontFamily: 'Barlow, sans-serif', fontSize: 9, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>Gratuite</p>
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 2 }}>
-            {[
-              { icon: '🏆', titre: 'Qualité premium', desc: 'Matières soigneusement sélectionnées.' },
-              { icon: '🚚', titre: 'Livraison 24-48h', desc: 'Expédition rapide, offerte au Maroc.' },
-              { icon: '↩️', titre: 'Retours 30 jours', desc: 'Retour gratuit sans condition.' },
-              { icon: '💬', titre: 'Support WhatsApp', desc: 'Équipe disponible 7j/7, 9h–19h.' },
-            ].map((item) => (
-              <div key={item.titre} style={{ background: '#f7f6f4', padding: '36px 24px', textAlign: 'center' }}>
-                <div style={{ fontSize: 28, marginBottom: 16 }}>{item.icon}</div>
-                <h3 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 18, fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#111', marginBottom: 8 }}>{item.titre}</h3>
-                <p style={{ fontFamily: 'Barlow, sans-serif', fontSize: 13, color: '#888', lineHeight: 1.6 }}>{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        )}
       </div>
     </div>
   )

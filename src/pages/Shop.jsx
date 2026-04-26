@@ -254,7 +254,7 @@ export default function Shop() {
             <div>
               <h2 style={{ fontFamily: 'Barlow Condensed', fontSize: 'clamp(24px,3.5vw,48px)', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>New Releases</h2>
             </div>
-            <button onClick={() => navigate('/catalogue')} className="btn-voir-tout">Get Access →</button>
+<button onClick={() => navigate('/catalogue#nouveautes')} className="btn-voir-tout">Get Access →</button>
           </div>
 
           {loading ? (
@@ -287,7 +287,7 @@ export default function Shop() {
             <div>
               <h2 style={{ fontFamily: 'Barlow Condensed', fontSize: 'clamp(24px,3.5vw,48px)', fontWeight: 900, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#111', lineHeight: 1 }}>Best Sellers</h2>
             </div>
-            <button onClick={() => navigate('/catalogue')} className="btn-voir-tout">view all →</button>
+<button onClick={() => navigate('/catalogue#best-sellers')} className="btn-voir-tout">view all →</button>
           </div>
 
           {loading ? (
