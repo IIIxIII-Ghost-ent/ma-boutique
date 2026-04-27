@@ -64,7 +64,7 @@ export default function Footer() {
               {[
                 { label: 'Instagram', href: '#', icon: <IcoIG /> },
                 { label: 'TikTok', href: '#', icon: <IcoTT /> },
-                { label: 'WhatsApp', href: 'https://wa.me/212675014485', icon: <IcoWA /> },
+                { label: 'WhatsApp', href: 'https://wa.me/212684670095', icon: <IcoWA /> },
               ].map(s => (
                 <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="social-link" aria-label={s.label}>{s.icon}</a>
               ))}
